@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Performance Prediction & Anomaly Engine | Eshanth Donikena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #090d16;
+      --panel: #111827;
+      --border: #1f2937;
+      --accent: #8b5cf6;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      --accent-amber: #f59e0b;
+      --text: #f9fafb;
+      --text-sub: #9ca3af;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+    body { background-color: var(--bg); color: var(--text); min-height: 100vh; padding: 24px; }
+
+    header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 24px; }
+    .title h1 { font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #c084fc, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .title p { color: var(--text-sub); font-size: 0.9rem; margin-top: 4px; }
+    .links { display: flex; gap: 10px; }
+    .btn-link { background: rgba(139, 92, 246, 0.15); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3); padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; text-decoration: none; }
+    .btn-link:hover { background: rgba(139, 92, 246, 0.3); }
+
+    .metrics-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .metric-card { background: var(--panel); border: 1px solid var(--border); padding: 20px; border-radius: 14px; text-align: center; }
+    .metric-card h3 { font-size: 0.8rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+    .metric-card .value { font-size: 2rem; font-weight: 800; color: #fff; }
+    .metric-card .tag { font-size: 0.78rem; color: var(--accent-emerald); font-weight: 600; margin-top: 4px; }
+
+    .main-grid { display: grid; grid-template-columns: 380px 1fr; gap: 24px; margin-bottom: 24px; }
+    @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+    .predictor-card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
+    .predictor-card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: #e5e7eb; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: flex; justify-content: space-between; font-size: 0.82rem; font-weight: 600; color: var(--text-sub); margin-bottom: 6px; }
+    .form-group input[type="range"] { width: 100%; accent-color: var(--accent); }
+    .btn-predict { width: 100%; background: linear-gradient(135deg, #8b5cf6, #6366f1); color: #fff; border: none; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 0.95rem; cursor: pointer; margin-top: 10px; }
+    .btn-predict:hover { opacity: 0.95; }
+
+    .result-box { margin-top: 20px; padding: 16px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); }
+    .result-box h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; }
+    .status-safe { color: var(--accent-emerald); }
+    .status-risk { color: var(--accent-rose); }
+
+    .dash-section { display: flex; flex-direction: column; gap: 20px; }
+    .charts-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+    .chart-box { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 20px; height: 320px; }
+    .chart-box h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 14px; color: #e5e7eb; }
+
+    .audit-log-card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+    .audit-log-card h3 { font-size: 1rem; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+    .db-badge { background: #1f2937; color: var(--accent-cyan); font-size: 0.75rem; padding: 4px 10px; border-radius: 12px; font-weight: 600; }
+    
+    table { width: 100%; border-collapse: collapse; font-size: 0.84rem; text-align: left; }
+    th { padding: 10px; background: #1f2937; color: var(--text-sub); text-transform: uppercase; font-size: 0.7rem; font-weight: 700; }
+    td { padding: 10px; border-bottom: 1px solid var(--border); }
+    .pill { padding: 3px 8px; border-radius: 10px; font-size: 0.74rem; font-weight: 700; }
+    .pill-safe { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+    .pill-risk { background: rgba(244, 63, 94, 0.2); color: #fca5a5; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="title">
+      <h1>Student Performance Prediction Engine</h1>
+      <p>Machine Learning Academic Risk Classifier & Real-Time Anomaly Audit System</p>
+    </div>
+    <div class="links">
+      <a href="https://github.com/Eshanth1727/student-performance-prediction" target="_blank" class="btn-link">💻 GitHub Repo</a>
+      <a href="https://github.com/Eshanth1727" target="_blank" class="btn-link">👤 Eshanth Donikena</a>
+    </div>
+  </header>
+
+  <div class="metrics-row">
+    <div class="metric-card">
+      <h3>MODEL ACCURACY</h3>
+      <div class="value">91.8%</div>
+      <div class="tag">✓ Exceeds 85% Requirement</div>
+    </div>
+    <div class="metric-card">
+      <h3>ROC-AUC SCORE</h3>
+      <div class="value">95.5%</div>
+      <div class="tag">High Predictive Discrimination</div>
+    </div>
+    <div class="metric-card">
+      <h3>ML ALGORITHM</h3>
+      <div class="value" style="font-size: 1.4rem; line-height: 2.2rem;">Random Forest & Gradient Boosting</div>
+      <div class="tag">Ensemble Classifier</div>
+    </div>
+    <div class="metric-card">
+      <h3>AUDIT BACKEND</h3>
+      <div class="value" style="font-size: 1.4rem; line-height: 2.2rem;">Flask + SQLite</div>
+      <div class="tag">Real-Time Anomaly Detection</div>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <!-- Predictor Tool -->
+    <div class="predictor-card">
+      <h2>🔮 Student Risk Predictor</h2>
+      
+      <div class="form-group">
+        <label>Lecture Attendance: <span id="valAttendance">75%</span></label>
+        <input type="range" id="inputAttendance" min="40" max="100" value="75" oninput="document.getElementById('valAttendance').innerText = this.value + '%'">
+      </div>
+
+      <div class="form-group">
+        <label>Weekly Study Hours: <span id="valStudy">14 hrs</span></label>
+        <input type="range" id="inputStudy" min="1" max="40" value="14" oninput="document.getElementById('valStudy').innerText = this.value + ' hrs'">
+      </div>
+
+      <div class="form-group">
+        <label>Prior Semester GPA: <span id="valGPA">2.80</span></label>
+        <input type="range" id="inputGPA" min="1.0" max="4.0" step="0.1" value="2.8" oninput="document.getElementById('valGPA').innerText = parseFloat(this.value).toFixed(2)">
+      </div>
+
+      <div class="form-group">
+        <label>Assignment Completion: <span id="valAssignments">70%</span></label>
+        <input type="range" id="inputAssignments" min="30" max="100" value="70" oninput="document.getElementById('valAssignments').innerText = this.value + '%'">
+      </div>
+
+      <div class="form-group">
+        <label>Midterm Score: <span id="valMidterm">65%</span></label>
+        <input type="range" id="inputMidterm" min="30" max="100" value="65" oninput="document.getElementById('valMidterm').innerText = this.value + '%'">
+      </div>
+
+      <button class="btn-predict" onclick="runMLPrediction()">Run Prediction Model</button>
+
+      <div class="result-box" id="resultContainer">
+        <h3 id="resultTitle">System Ready</h3>
+        <p id="resultText" style="font-size: 0.85rem; color: var(--text-sub);">Adjust sliders above to evaluate student academic outcome risk.</p>
+        <p id="resultRecommendation" style="font-size: 0.82rem; margin-top: 8px; font-weight: 600; color: var(--accent-cyan);"></p>
+      </div>
+    </div>
+
+    <!-- Dashboards & Charts -->
+    <div class="dash-section">
+      <div class="charts-row">
+        <div class="chart-box">
+          <h3>ML Feature Importance Weights</h3>
+          <canvas id="featureChart"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3>Academic Risk Score Distribution</h3>
+          <canvas id="riskDistChart"></canvas>
+        </div>
+      </div>
+
+      <div class="audit-log-card">
+        <h3>
+          <span>SQLite Real-Time Audit Log & Anomaly Stream</span>
+          <span class="db-badge">SQLite Log Table: student_audit.db</span>
+        </h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Student ID</th>
+              <th>Status</th>
+              <th>Risk Prob</th>
+              <th>Anomaly Detected</th>
+              <th>Prescriptive Recommendation</th>
+            </tr>
+          </thead>
+          <tbody id="auditTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

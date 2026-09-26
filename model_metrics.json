@@ -1,0 +1,12 @@
+{
+  "accuracy": 91.5,
+  "roc_auc": 95.5,
+  "feature_importances": {
+    "attendance_rate": 0.2294,
+    "weekly_study_hours": 0.4783,
+    "prior_gpa": 0.1249,
+    "assignment_completion_rate": 0.056,
+    "midterm_score": 0.06,
+    "daily_sleep_hours": 0.0514
+  }
+}
