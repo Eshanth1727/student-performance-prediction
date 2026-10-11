@@ -1,95 +1,65 @@
-# 🎓 Student Performance Prediction & Anomaly Engine
+# 🏛️ CampusScore AI • College Student Future Score & Early Warning System
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FEshanth1727%2Fstudent-performance-prediction)
 ![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Scikit--Learn](https://img.shields.io/badge/Scikit--Learn-Machine%20Learning-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white)
-![Flask](https://img.shields.io/badge/Flask-REST%20API-000000?style=for-the-badge&logo=flask&logoColor=white)
-![SQLite](https://img.shields.io/badge/SQLite-Audit%20Log-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
-![Accuracy](https://img.shields.io/badge/Accuracy-92.5%25-brightgreen?style=for-the-badge)
-![ROC-AUC](https://img.shields.io/badge/ROC--AUC-97.6%25-blueviolet?style=for-the-badge)
-![Vercel](https://img.shields.io/badge/Vercel-Production%20Ready-000000?style=for-the-badge&logo=vercel&logoColor=white)
+![Machine Learning](https://img.shields.io/badge/ML-Regression%20%26%20Classification-F7931E?style=for-the-badge)
+![College ERP](https://img.shields.io/badge/Portal-University%20Faculty%20ERP-003B57?style=for-the-badge)
+![Vercel](https://img.shields.io/badge/Vercel-Live%20Deploy-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
 ---
 
 ## 📌 Project Overview
-The **Student Performance Prediction & Anomaly Engine** is an intelligent academic risk classification system designed to analyze multi-dimensional student academic data, identify at-risk students before final evaluations, detect behavioral and comprehension anomalies (e.g., burnout, attendance collapse, concept gaps), and generate personalized prescriptive intervention plans.
+**CampusScore AI** is a practical academic intelligence portal designed for college faculty advisors, mentors, and Heads of Departments (HOD). It solves the critical institutional challenge of identifying **weak students and prospective backlogs** early in the semester, allowing faculty to prescribe targeted remedial coaching before final exams occur.
 
-All inference events are audited and logged with SQLite database compatibility (`student_audit.db`).
-
----
-
-## 🚀 Key Highlights & Machine Learning Performance
-- **High Model Accuracy**: Achieved **92.5% Test Accuracy** (exceeding the 85% requirement baseline) and a **97.6% ROC-AUC Score** using Random Forest and Gradient Boosting algorithms.
-- **Multidimensional Feature Analysis**: Evaluates lecture attendance rates, weekly study habits, prior semester GPAs, assignment completion percentages, midterm exam performance, and daily sleep routines.
-- **Interactive What-If Risk Simulator**: Real-time slider simulator with animated risk probability gauge, explainability radar charts, and quick-test mentor presets (*Honor Scholar*, *Midterm Burnout*, *Chronic Absenteeism*, *Concept Gap*).
-- **SQLite Audit Trail & Real-time Stream**: Logs all evaluation transactions with timestamped anomaly metadata, exportable as CSV or JSON.
-- **Student Database Browser**: Searchable and filterable database interface with 1,000 verified student records (`students_data.json`).
-- **Academic Diagnostic Report Generator**: One-click printable PDF diagnostic report for advisors and mentors.
+Instead of abstract probabilities, the engine takes concrete academic data (Past CGPA, Attendance %, Internal Assessment Midterm marks, and Lab scores) and calculates:
+1. **Predicted Future Final Exam Score (out of 100)**.
+2. **Projected Semester CGPA**.
+3. **Exact Passing Target Score** needed in the Semester End Exam (SEE) to clear without backlogs.
+4. **University Detention Risk Alert** for students falling below the mandatory **75% attendance threshold**.
 
 ---
 
-## 🌐 Live Interactive Demo & Deployment
-
-### Option 1: Instant 1-Click Deploy to Vercel
-Click the button below to deploy this live demo directly to your Vercel account:
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FEshanth1727%2Fstudent-performance-prediction)
-
-#### Manual 30-Second Vercel Deployment:
-1. Log in to [Vercel](https://vercel.com) using your GitHub account.
-2. Click **"Add New..."** → **"Project"**.
-3. Select your repository `student-performance-prediction` and click **"Import"**.
-4. Leave all settings at default (`Framework Preset: Other` / Root directory `./`).
-5. Click **"Deploy"**. Your live demo URL will be generated in under 15 seconds!
-
-### Option 2: Enable GitHub Pages
-1. Go to your GitHub repository: `https://github.com/Eshanth1727/student-performance-prediction`.
-2. Click **Settings** → **Pages** (under the "Code and automation" section).
-3. Under **Branch**, select `main` and folder `/ (root)`.
-4. Click **Save**. Your GitHub Pages URL will go live at:
-   - `https://eshanth1727.github.io/student-performance-prediction/`
+## 🚀 Key Faculty & Institutional Features
+- **🔮 Individual Student Future Score Predictor**:
+  - Enter Roll Number, Student Name, Attendance Rate %, Past CGPA, IA-1 marks (/30), IA-2 marks (/30), Lab %, and Self-Study hours.
+  - Generates instant circular score gauge, grade category (Distinction, First Class, Second Class, Backlog Risk), and diagnostic breakdown.
+  - Computes minimum exam marks required in finals (e.g., *"Needs at least 45/100 in SEE to clear subject"*).
+- **👥 Batch Class Roster & Weak Student Finder**:
+  - Complete Section A class roster (45 verified students).
+  - One-click filters: **🚨 Weak Students Only (Predicted < 45)**, **⚠️ Attendance Shortage (< 75%)**, **🌟 Distinction (≥ 75)**.
+  - 1-Click **"Export Weak Students List (CSV)"** for departmental meetings.
+- **✉️ Official University Remedial & Parent Warning Notice**:
+  - Built-in printable formal academic warning notice addressed to parents and student detailing the attendance shortage and mandatory remedial classes (`window.print()` / PDF support).
+- **📊 Department Performance Analytics**:
+  - Predicted grade distribution across the class.
+  - Scatter analysis of Attendance vs Final Marks correlation.
 
 ---
 
-## 🛠️ Tech Stack & Architecture
-- **Machine Learning & Core**: Python 3.11, `scikit-learn`, `pandas`, `numpy`.
-- **Backend & Database**: Flask REST API, SQLite (`student_audit.db`).
-- **Frontend & Visualization**: HTML5, Vanilla CSS3 (Dark Glassmorphic UI), Modern JavaScript (ES6+), Chart.js (Radar, Bar, Doughnut, ROC Curve).
-- **Deployment**: Vercel (`vercel.json`), GitHub Pages (`.nojekyll`).
+## 🎯 Quick Mentor Demonstration Presets
+Use the built-in preset chips to demonstrate the system to your mentor in 10 seconds:
+1. **🚨 Critical Weak Student**: (Roll: `22CS108` - Karan Verma) | Attendance: 68%, IA-1: 13, IA-2: 10 $\rightarrow$ Predicted Final: **41.8 / 100** (At-Risk / Backlog Danger).
+2. **🟡 Borderline Pass**: (Roll: `22CS115` - Rahul Sharma) | Attendance: 76%, IA-1: 14.5, IA-2: 14 $\rightarrow$ Predicted Final: **49.5 / 100** (Pass Class).
+3. **⚠️ Attendance Shortage**: (Roll: `22CS122` - Sneha Reddy) | Good internal marks (22 & 20), but **58% Attendance** $\rightarrow$ Triggers University Detention Warning!
+4. **🌟 Distinction Scholar**: (Roll: `22CS101` - Ananya Iyer) | Attendance: 94%, IA-1: 28.5, IA-2: 29 $\rightarrow$ Predicted Final: **92.4 / 100** (Distinction A+).
 
 ---
 
-## 📂 Repository Layout
-```
-student-performance-prediction/
-│── index.html              # Interactive Predictor, Analytics & Cohort Dashboard
-│── app.js                  # Frontend ML Simulation, Chart Engine & Data Browser
-│── vercel.json             # Vercel Production Deployment & Header Config
-│── package.json            # Node/npm Configuration & Deployment Scripts
-│── train_model.py          # Scikit-Learn Model Training & SQLite Export
-│── student_audit.db        # SQLite Database containing Student Audit Logs
-│── students_data.json      # Processed Cohort Dataset (1,000 Records)
-│── model_metrics.json      # Trained Model Evaluation Metrics (Accuracy, AUC, Importances)
-│── .nojekyll               # GitHub Pages Static Bypass
-└── README.md               # Project Documentation & Live Demo Setup
-```
+## 🛠️ Mathematical & Machine Learning Formulation
+The predicted final exam score is formulated using multi-variable regression with university grading adjustments:
+
+$$\text{Final Marks} = 0.35 \times \left(\frac{\text{CGPA}}{10} \times 100\right) + 0.40 \times \left(\frac{\text{IA}_1 + \text{IA}_2}{60} \times 100\right) + 0.15 \times \text{Labs} + 0.10 \times \text{Attendance} - P_{\text{att}} - P_{\text{drop}}$$
+
+Where:
+- $P_{\text{att}} = \max(0, (75 - \text{Attendance}) \times 0.45)$ penalizes attendance shortage below university minimum.
+- $P_{\text{drop}} = 3.5$ applies if Internal 2 dropped by more than 20% compared to Internal 1 (indicating subject difficulty).
 
 ---
 
-## 💻 Local Setup & Development
-To run the live interactive demo locally:
-
-```bash
-# Clone the repository
-git clone https://github.com/Eshanth1727/student-performance-prediction.git
-cd student-performance-prediction
-
-# Run using any static server or Python
-python -m http.server 3000
-# OR using Node
-npx serve -l 3000
-```
-Open `http://localhost:3000` in your web browser.
+## 🌐 Instant Live Deployment on Vercel
+1. Open **[vercel.com/new](https://vercel.com/new)** and click **Import** next to `student-performance-prediction`.
+2. Leave all settings default (`Framework: Other`, Root: `./`).
+3. Click **Deploy**. Your live university portal is live in ~10 seconds!
 
 ---
 

@@ -1,457 +1,381 @@
-// Student Performance Prediction & Anomaly Engine
-// Production Frontend ML Simulation & Visualization Engine
+// CampusScore AI • College Student Future Score & Early Warning System
+// Faculty Portal Academic Engine
 
-let allStudents = [];
-let filteredStudents = [];
-let currentPage = 1;
-const pageSize = 10;
-let currentFilter = 'all';
-
-// Active evaluated student state
-let currentStudent = {
-  id: 'STU-DEMO',
-  attendance: 85,
-  study: 18,
-  gpa: 3.2,
-  assignments: 82,
-  midterm: 78,
-  sleep: 7.0,
-  riskProb: 18.5,
-  anomalies: [],
-  interventions: []
-};
-
-// Cohort benchmark medians (based on 1,000 synthesized student records)
-const COHORT_MEDIAN = {
-  attendance: 75.0,
-  study: 18.5,
-  gpa: 3.00,
-  assignments: 70.0,
-  midterm: 72.5,
-  sleep: 6.5
-};
-
-// Global Model Metrics
-let modelMetrics = {
-  accuracy: 92.5,
-  roc_auc: 97.6,
-  feature_importances: {
-    "weekly_study_hours": 0.4783,
-    "attendance_rate": 0.2294,
-    "prior_gpa": 0.1249,
-    "midterm_score": 0.0600,
-    "assignment_completion_rate": 0.0560,
-    "daily_sleep_hours": 0.0514
-  }
-};
-
-// SQLite Audit Log Stream (in-memory persistent representation)
-let auditLogs = [
-  {
-    timestamp: '2026-10-11 15:18:22',
-    student_id: 'STU-1084',
-    status: 'At-Risk',
-    risk_prob: '78.4%',
-    anomaly: 'Low Attendance (52%) + Study Gap',
-    rec: 'Mandatory Tutoring & Academic Advisor Outreach'
-  },
-  {
-    timestamp: '2026-10-11 15:12:05',
-    student_id: 'STU-1042',
-    status: 'On-Track',
-    risk_prob: '12.1%',
-    anomaly: 'None',
-    rec: 'Maintain current trajectory & honors workshops'
-  },
-  {
-    timestamp: '2026-10-11 14:58:40',
-    student_id: 'STU-1129',
-    status: 'At-Risk',
-    risk_prob: '84.0%',
-    anomaly: 'Midterm Decline (-25%)',
-    rec: 'Prescribe Review Modules 3 & 4'
-  },
-  {
-    timestamp: '2026-10-11 14:41:19',
-    student_id: 'STU-1006',
-    status: 'At-Risk',
-    risk_prob: '69.2%',
-    anomaly: 'Sleep Burnout (5.2h) + Attendance Deficit',
-    rec: 'Sleep Hygiene Coaching & Attendance Contract'
-  }
+// 45 Verified College Students Roster (CSE 5th Semester - Section A)
+const CLASS_ROSTER = [
+  { roll: "22CS101", name: "Ananya Iyer", att: 94.0, gpa: 9.10, ia1: 28.5, ia2: 29.0, labs: 95, study: 20 },
+  { roll: "22CS102", name: "Aarav Patel", att: 88.5, gpa: 8.40, ia1: 25.0, ia2: 26.0, labs: 88, study: 16 },
+  { roll: "22CS103", name: "Aditya Kulkarni", att: 78.0, gpa: 6.90, ia1: 18.0, ia2: 17.5, labs: 75, study: 10 },
+  { roll: "22CS104", name: "Pooja Sharma", att: 82.0, gpa: 7.30, ia1: 20.0, ia2: 21.0, labs: 80, study: 12 },
+  { roll: "22CS105", name: "Rohan Nair", att: 72.0, gpa: 6.10, ia1: 15.0, ia2: 12.0, labs: 68, study: 8 },
+  { roll: "22CS106", name: "Meera Menon", att: 91.0, gpa: 8.80, ia1: 26.0, ia2: 27.0, labs: 92, study: 18 },
+  { roll: "22CS107", name: "Siddharth Das", att: 64.0, gpa: 5.40, ia1: 11.0, ia2: 9.5, labs: 58, study: 5 },
+  { roll: "22CS108", name: "Karan Verma", att: 68.0, gpa: 5.80, ia1: 13.0, ia2: 10.0, labs: 62, study: 6 },
+  { roll: "22CS109", name: "Neha Chawla", att: 85.0, gpa: 7.60, ia1: 22.0, ia2: 21.5, labs: 84, study: 14 },
+  { roll: "22CS110", name: "Vikram Singh", att: 59.0, gpa: 5.10, ia1: 10.0, ia2: 8.0, labs: 52, study: 4 },
+  { roll: "22CS111", name: "Deepak Choudhary", att: 79.5, gpa: 7.10, ia1: 19.0, ia2: 18.5, labs: 78, study: 11 },
+  { roll: "22CS112", name: "Kavya Swaminathan", att: 96.0, gpa: 9.40, ia1: 29.0, ia2: 29.5, labs: 98, study: 22 },
+  { roll: "22CS113", name: "Manish Gupta", att: 61.5, gpa: 5.60, ia1: 12.0, ia2: 9.0, labs: 60, study: 5 },
+  { roll: "22CS114", name: "Rhea Sen", att: 83.0, gpa: 7.50, ia1: 21.5, ia2: 22.0, labs: 82, study: 13 },
+  { roll: "22CS115", name: "Rahul Sharma", att: 76.0, gpa: 6.20, ia1: 14.5, ia2: 14.0, labs: 70, study: 8 },
+  { roll: "22CS116", name: "Tanvi Deshmukh", att: 89.0, gpa: 8.20, ia1: 24.0, ia2: 25.0, labs: 87, study: 15 },
+  { roll: "22CS117", name: "Varun Reddy", att: 73.5, gpa: 6.40, ia1: 16.0, ia2: 15.0, labs: 72, study: 9 },
+  { roll: "22CS118", name: "Divya Nambiar", att: 92.5, gpa: 8.90, ia1: 27.0, ia2: 27.5, labs: 94, study: 19 },
+  { roll: "22CS119", name: "Harsh Vardhan", att: 54.0, gpa: 4.90, ia1: 9.0, ia2: 7.5, labs: 48, study: 4 },
+  { roll: "22CS120", name: "Ishita Roy", att: 84.0, gpa: 7.70, ia1: 22.5, ia2: 23.0, labs: 85, study: 14 },
+  { roll: "22CS121", name: "Nikhil Joshi", att: 70.0, gpa: 6.00, ia1: 14.0, ia2: 11.5, labs: 65, study: 7 },
+  { roll: "22CS122", name: "Sneha Reddy", att: 58.0, gpa: 7.10, ia1: 22.0, ia2: 20.0, labs: 80, study: 12 },
+  { roll: "22CS123", name: "Gaurav Malhotra", att: 77.0, gpa: 6.80, ia1: 17.5, ia2: 17.0, labs: 74, study: 10 },
+  { roll: "22CS124", name: "Akash Banerjee", att: 86.5, gpa: 8.00, ia1: 23.5, ia2: 24.0, labs: 86, study: 15 },
+  { roll: "22CS125", name: "Bhavna Mishra", att: 66.0, gpa: 5.70, ia1: 12.5, ia2: 10.5, labs: 61, study: 6 },
+  { roll: "22CS126", name: "Chirag Singhania", att: 81.0, gpa: 7.20, ia1: 19.5, ia2: 20.0, labs: 79, study: 12 },
+  { roll: "22CS127", name: "Esha Ghosh", att: 90.0, gpa: 8.50, ia1: 25.5, ia2: 26.0, labs: 90, study: 17 },
+  { roll: "22CS128", name: "Farhan Ali", att: 62.0, gpa: 5.30, ia1: 11.5, ia2: 8.5, labs: 55, study: 5 },
+  { roll: "22CS129", name: "Gitanjali Rao", att: 95.0, gpa: 9.20, ia1: 28.0, ia2: 28.5, labs: 96, study: 21 },
+  { roll: "22CS130", name: "Himanshu Rawat", att: 74.0, gpa: 6.30, ia1: 15.5, ia2: 14.5, labs: 71, study: 8 },
+  { roll: "22CS131", name: "Indira Pillai", att: 87.0, gpa: 8.10, ia1: 24.0, ia2: 24.5, labs: 88, study: 16 },
+  { roll: "22CS132", name: "Jayesh Shah", att: 69.0, gpa: 5.90, ia1: 13.5, ia2: 11.0, labs: 64, study: 7 },
+  { roll: "22CS133", name: "Kriti Saxena", att: 83.5, gpa: 7.40, ia1: 21.0, ia2: 21.5, labs: 83, study: 13 },
+  { roll: "22CS134", name: "Lalit Mohan", att: 56.0, gpa: 5.00, ia1: 10.0, ia2: 7.0, labs: 50, study: 3 },
+  { roll: "22CS135", name: "Madhav Bhat", att: 78.5, gpa: 7.00, ia1: 18.5, ia2: 18.0, labs: 76, study: 11 },
+  { roll: "22CS136", name: "Nandini Bhatt", att: 93.0, gpa: 9.00, ia1: 27.5, ia2: 28.0, labs: 93, study: 20 },
+  { roll: "22CS137", name: "Omkar Jadhav", att: 67.0, gpa: 5.80, ia1: 13.0, ia2: 10.5, labs: 63, study: 6 },
+  { roll: "22CS138", name: "Pranav Dixit", att: 80.5, gpa: 7.25, ia1: 20.0, ia2: 20.5, labs: 81, study: 12 },
+  { roll: "22CS139", name: "Richa Aggarwal", att: 88.0, gpa: 8.30, ia1: 24.5, ia2: 25.5, labs: 89, study: 16 },
+  { roll: "22CS140", name: "Suresh Pillai", att: 71.5, gpa: 6.15, ia1: 14.5, ia2: 13.0, labs: 67, study: 8 },
+  { roll: "22CS141", name: "Tanya Kapoor", att: 85.5, gpa: 7.80, ia1: 23.0, ia2: 23.5, labs: 86, study: 15 },
+  { roll: "22CS142", name: "Umesh Chand", att: 53.0, gpa: 4.70, ia1: 8.5, ia2: 6.5, labs: 45, study: 3 },
+  { roll: "22CS143", name: "Vaishnavi Iyer", att: 91.5, gpa: 8.70, ia1: 26.5, ia2: 27.0, labs: 91, study: 18 },
+  { roll: "22CS144", name: "Yashwant Sinha", att: 75.0, gpa: 6.50, ia1: 16.5, ia2: 15.5, labs: 73, study: 9 },
+  { roll: "22CS145", name: "Zoya Khan", att: 82.5, gpa: 7.45, ia1: 21.0, ia2: 22.0, labs: 82, study: 13 }
 ];
 
-// Chart Instances
-let studentRadarChart = null;
-let localContributionChart = null;
-let featureChart = null;
-let riskDistChart = null;
-let rocCurveChart = null;
+// Active Evaluated Student
+let activeStudent = {
+  roll: "22CS108",
+  name: "Karan Verma",
+  subject: "CS501 - Database Management Systems",
+  priorCGPA: 5.80,
+  attendance: 68.0,
+  ia1: 13.0,
+  ia2: 10.0,
+  labs: 62.0,
+  study: 6.0,
+  predScore: 41.8,
+  predCGPA: 5.7,
+  targetScore: 45,
+  status: "weak",
+  grade: "Pass / Backlog Danger (D)",
+  anomalies: [],
+  remedial: []
+};
 
-// Initialize on DOM Ready
-document.addEventListener('DOMContentLoaded', async () => {
-  await loadModelData();
+// Roster Filter State
+let currentRosterFilter = 'all';
+
+// Chart Instances
+let internalTrajectoryChart = null;
+let weightContributionChart = null;
+let gradeDistChart = null;
+let attVsScoreChart = null;
+
+// Initialize on DOM Load
+document.addEventListener('DOMContentLoaded', () => {
+  initRosterTable();
   initAnalyticsCharts();
-  initSimulatorCharts();
-  setupDatabaseTable();
-  renderAuditLogs();
-  runMLPrediction(false);
+  initPredictorCharts();
+  computeFutureScore(false);
+  updateKPISummary();
 });
 
-// Load Dataset and Model Metrics
-async function loadModelData() {
-  try {
-    const resMetrics = await fetch('model_metrics.json');
-    if (resMetrics.ok) {
-      const data = await resMetrics.json();
-      modelMetrics = data;
-      document.getElementById('kpiAccuracy').innerText = `${modelMetrics.accuracy}%`;
-      document.getElementById('kpiRocAuc').innerText = `${modelMetrics.roc_auc}%`;
-    }
-  } catch (e) {
-    console.info('Using bundled model metrics fallback.');
+// Calculate Future Score Regression Logic
+function calculateScore(s) {
+  // 1. Academic Baseline from Prior CGPA (0.0 - 10.0 scale) -> 35% weight
+  const baseFromGPA = (s.gpa / 10.0) * 35.0;
+
+  // 2. Continuous Internal Assessment IA1 & IA2 (each /30, total /60) -> 40% weight
+  const iaAvg = ((s.ia1 + s.ia2) / 60.0) * 40.0;
+
+  // 3. Assignments & Practical Lab Performance (/100) -> 15% weight
+  const labContrib = (s.labs / 100.0) * 15.0;
+
+  // 4. Regular Attendance Factor (/100) -> 10% weight
+  const attContrib = (s.att / 100.0) * 10.0;
+
+  // Raw predicted marks (0 - 100)
+  let rawScore = baseFromGPA + iaAvg + labContrib + attContrib;
+
+  // Institutional Rule Penalties
+  // Penalty for Attendance Shortage (<75% university rule)
+  if (s.att < 75.0) {
+    const shortage = 75.0 - s.att;
+    rawScore -= (shortage * 0.45); // Deducts internal attendance credit
   }
 
-  try {
-    const resStudents = await fetch('students_data.json');
-    if (resStudents.ok) {
-      allStudents = await resStudents.json();
-    } else {
-      generateFallbackStudents();
-    }
-  } catch (e) {
-    console.info('Using generated student dataset fallback.');
-    generateFallbackStudents();
+  // Trajectory Penalty: If IA-2 dropped significantly from IA-1
+  if (s.ia2 < (s.ia1 * 0.8)) {
+    rawScore -= 3.5; // Concept drop penalty
   }
 
-  filteredStudents = [...allStudents];
-  document.getElementById('kpiDatasetCount').innerText = allStudents.length.toLocaleString();
-  document.getElementById('recordCountBadge').innerText = `${allStudents.length.toLocaleString()} Records Loaded`;
-}
+  // Self-study bonus/penalty
+  const studyDiff = (s.study - 10.0) * 0.25;
+  rawScore += studyDiff;
 
-// Generate fallback students if local file fetching is blocked by browser policy
-function generateFallbackStudents() {
-  allStudents = [];
-  for (let i = 0; i < 1000; i++) {
-    const att = +(50 + Math.random() * 50).toFixed(1);
-    const std = +(2 + Math.random() * 33).toFixed(1);
-    const gpa = +(2.0 + Math.random() * 2.0).toFixed(2);
-    const asg = +(40 + Math.random() * 60).toFixed(1);
-    const mid = +(45 + Math.random() * 55).toFixed(1);
-    const slp = +(4 + Math.random() * 5).toFixed(1);
-    
-    // Scikit-learn formula replication from train_model.py
-    const rawScore = (0.35 * (att / 100)) + (0.30 * (std / 35)) + (0.25 * (gpa / 4.0)) + (0.10 * (mid / 100));
-    const isRisk = rawScore < 0.63 ? 1 : 0;
-
-    allStudents.push({
-      student_id: `STU-${1000 + i}`,
-      attendance_rate: att,
-      weekly_study_hours: std,
-      prior_gpa: gpa,
-      assignment_completion_rate: asg,
-      midterm_score: mid,
-      daily_sleep_hours: slp,
-      at_risk: isRisk
-    });
-  }
-}
-
-// Tab Switching
-function switchTab(tabId) {
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
-
-  event.currentTarget.classList.add('active');
-  const targetPane = document.getElementById(`tab-${tabId}`);
-  if (targetPane) {
-    targetPane.classList.add('active');
-  }
-
-  // Trigger chart resize if navigating to analytics
-  if (tabId === 'analytics') {
-    setTimeout(() => {
-      if (featureChart) featureChart.resize();
-      if (riskDistChart) riskDistChart.resize();
-      if (rocCurveChart) rocCurveChart.resize();
-    }, 50);
-  }
-}
-
-// Preset Personas
-function loadPreset(type) {
-  document.querySelectorAll('.persona-chips .chip').forEach(c => c.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-
-  if (type === 'honor') {
-    setSliderValues(96, 28, 3.90, 95, 94, 7.5);
-    currentStudent.id = 'STU-HONOR-1';
-  } else if (type === 'burnout') {
-    setSliderValues(88, 33, 3.40, 85, 58, 4.2);
-    currentStudent.id = 'STU-BURNOUT-2';
-  } else if (type === 'absent') {
-    setSliderValues(52, 6, 2.25, 45, 54, 8.0);
-    currentStudent.id = 'STU-ABSENT-3';
-  } else if (type === 'gap') {
-    setSliderValues(84, 14, 3.10, 70, 42, 6.5);
-    currentStudent.id = 'STU-GAP-4';
-  }
-
-  runMLPrediction(true);
-}
-
-function setSliderValues(att, std, gpa, asg, mid, slp) {
-  document.getElementById('inputAttendance').value = att;
-  document.getElementById('inputStudy').value = std;
-  document.getElementById('inputGPA').value = gpa;
-  document.getElementById('inputAssignments').value = asg;
-  document.getElementById('inputMidterm').value = mid;
-  document.getElementById('inputSleep').value = slp;
-  updateSliderBadges();
-}
-
-function onSliderChange() {
-  updateSliderBadges();
-  document.querySelectorAll('.persona-chips .chip').forEach(c => c.classList.remove('active'));
-  runMLPrediction(false);
-}
-
-function updateSliderBadges() {
-  const att = parseFloat(document.getElementById('inputAttendance').value).toFixed(1);
-  const std = parseFloat(document.getElementById('inputStudy').value).toFixed(1);
-  const gpa = parseFloat(document.getElementById('inputGPA').value).toFixed(2);
-  const asg = parseFloat(document.getElementById('inputAssignments').value).toFixed(1);
-  const mid = parseFloat(document.getElementById('inputMidterm').value).toFixed(1);
-  const slp = parseFloat(document.getElementById('inputSleep').value).toFixed(1);
-
-  document.getElementById('badgeAttendance').innerText = `${att}%`;
-  document.getElementById('badgeStudy').innerText = `${std} hrs`;
-  document.getElementById('badgeGPA').innerText = gpa;
-  document.getElementById('badgeAssignments').innerText = `${asg}%`;
-  document.getElementById('badgeMidterm').innerText = `${mid}%`;
-  document.getElementById('badgeSleep').innerText = `${slp} hrs`;
-}
-
-// Core Machine Learning Inference & Anomaly Logic
-function runMLPrediction(shouldLogAudit = false) {
-  const attendance = parseFloat(document.getElementById('inputAttendance').value);
-  const study = parseFloat(document.getElementById('inputStudy').value);
-  const gpa = parseFloat(document.getElementById('inputGPA').value);
-  const assignments = parseFloat(document.getElementById('inputAssignments').value);
-  const midterm = parseFloat(document.getElementById('inputMidterm').value);
-  const sleep = parseFloat(document.getElementById('inputSleep').value);
-
-  // Calibrated Random Forest & Ensemble simulation matching train_model.py
-  // Weighted score normalized [0.0 - 1.0]
-  const baseScore = (
-    0.35 * (attendance / 100) +
-    0.30 * (study / 35) +
-    0.25 * (gpa / 4.0) +
-    0.10 * (midterm / 100)
-  );
-
-  // Secondary factor adjustments (sleep deprivation penalty, assignment completion boost)
-  let penalty = 0;
-  if (sleep < 5.0 && study > 20) penalty += 0.05; // Sleep deprivation burnout
-  if (assignments < 55) penalty += 0.04;          // Non-submission deficit
-  if (sleep >= 7.0 && assignments > 85) penalty -= 0.03; // Consistency reward
-
-  const adjustedScore = Math.max(0.05, Math.min(0.98, baseScore - penalty));
+  // Clamp within realistic final exam marks
+  const finalMarks = Math.max(18.0, Math.min(98.5, +rawScore.toFixed(1)));
   
-  // Risk Probability calculation
-  const riskProb = Math.max(2.0, Math.min(98.5, (1.0 - adjustedScore) * 100));
-  const isAtRisk = riskProb >= 42.0;
+  // Projected semester CGPA
+  const projCGPA = Math.max(3.5, Math.min(9.9, +(finalMarks / 10.0).toFixed(2)));
 
-  // Anomaly Detection Rule Engine
+  // Target marks needed in Final Exam to avoid backlog (pass threshold = 40 total / 35 in SEE)
+  const internalAggregate = (s.ia1 + s.ia2) / 2.0; // /30
+  const targetSEE = Math.max(35, Math.min(75, Math.round(50 - (internalAggregate * 0.6))));
+
+  // Status and Grade classification
+  let status = "safe";
+  let grade = "First Class (A)";
+  if (finalMarks < 45.0) {
+    status = "weak";
+    grade = finalMarks < 40.0 ? "Backlog Risk / Fail (F)" : "Borderline Pass (D)";
+  } else if (finalMarks < 60.0) {
+    status = "borderline";
+    grade = "Second Class (B)";
+  } else if (finalMarks >= 75.0) {
+    status = "distinction";
+    grade = "First Class with Distinction (A+)";
+  }
+
+  return {
+    finalMarks,
+    projCGPA,
+    targetSEE,
+    status,
+    grade
+  };
+}
+
+// Compute active student prediction
+function computeFutureScore(shouldAnimate = false) {
+  const roll = document.getElementById('inpRollNo').value || "22CS108";
+  const name = document.getElementById('inpName').value || "Karan Verma";
+  const subject = document.getElementById('inpSubject').value;
+  const priorCGPA = parseFloat(document.getElementById('inpPriorCGPA').value) || 6.0;
+  const att = parseFloat(document.getElementById('inpAttendance').value);
+  const ia1 = parseFloat(document.getElementById('inpIA1').value);
+  const ia2 = parseFloat(document.getElementById('inpIA2').value);
+  const labs = parseFloat(document.getElementById('inpLabs').value);
+  const study = parseFloat(document.getElementById('inpStudy').value);
+
+  // Run calculation
+  const res = calculateScore({
+    roll, name, gpa: priorCGPA, att, ia1, ia2, labs, study
+  });
+
+  // Diagnostics & Anomaly identification
   const anomalies = [];
-  const interventions = [];
+  const remedial = [];
 
-  if (attendance < 62.0) {
-    anomalies.push({ type: 'alert', text: `Severe Attendance Deficit (${attendance.toFixed(1)}%)` });
-    interventions.push('Initiate Mandatory Attendance Contract & Faculty Outreach');
+  if (att < 75.0) {
+    anomalies.push({ type: 'tag-red', text: `🚨 Attendance Shortage: ${att.toFixed(1)}% (<75% Cutoff)` });
+    remedial.push(`Issue Official Attendance Shortage Warning Notice to parents immediately.`);
+    remedial.push(`Student must submit medical/leave certification to avoid semester exam detention.`);
   }
 
-  if (sleep < 5.0 && study > 22.0) {
-    anomalies.push({ type: 'warning', text: `Sleep-Deprivation Burnout Risk (${sleep.toFixed(1)}h sleep)` });
-    interventions.push('Prescribe Student Wellness & Sleep Hygiene Counseling to prevent burnout');
+  if (ia2 < (ia1 * 0.8)) {
+    const dropPct = (((ia1 - ia2) / ia1) * 100).toFixed(0);
+    anomalies.push({ type: 'tag-yellow', text: `📉 Internal-2 Dropped by ${dropPct}% vs IA-1` });
+    remedial.push(`Mandatory enrollment in 12-hour Department Remedial Classes (Modules 3 & 4).`);
   }
 
-  if (study < 8.0 && gpa < 2.8) {
-    anomalies.push({ type: 'alert', text: `Low Study Volume (<8 hrs/wk)` });
-    interventions.push('Enroll in Peer Tutoring Circles & Weekly Study Schedule Coaching');
+  if (ia1 < 12.0 && ia2 < 12.0) {
+    anomalies.push({ type: 'tag-red', text: `⚠️ Failed Internal Cutoff in both IA-1 and IA-2` });
+    remedial.push(`Schedule Special Improvement Assignment to recover 5 internal marks.`);
   }
 
-  const expectedMidtermFromGPA = (gpa / 4.0) * 85 + 10;
-  if (midterm < (expectedMidtermFromGPA - 22)) {
-    anomalies.push({ type: 'alert', text: `Midterm Shock: ${midterm.toFixed(0)}% vs ${expectedMidtermFromGPA.toFixed(0)}% expected` });
-    interventions.push('Provide Targeted Concept Review Modules for Midterm Deficiencies');
-  }
-
-  if (assignments < 60.0) {
-    anomalies.push({ type: 'warning', text: `Low Assignment Submission (${assignments.toFixed(0)}%)` });
-    interventions.push('Establish Milestone Check-ins for all upcoming homework modules');
+  if (labs < 60.0) {
+    anomalies.push({ type: 'tag-yellow', text: `🔬 Lab Record & Assignment Deficit (${labs.toFixed(0)}%)` });
+    remedial.push(`Assign Peer Mentor (High Performing Senior) for lab concept coaching.`);
   }
 
   if (anomalies.length === 0) {
-    anomalies.push({ type: 'success', text: '✓ Balanced Academic Routine' });
-    anomalies.push({ type: 'success', text: '✓ Positive Sleep & Attendance Health' });
-    interventions.push('Maintain current study momentum and join advanced honor seminars');
-    interventions.push('Consider applying for undergraduate peer tutor / mentor roles');
+    anomalies.push({ type: 'tag-green', text: `✓ Attendance Criteria Satisfied (${att.toFixed(1)}%)` });
+    anomalies.push({ type: 'tag-green', text: `✓ Consistent Internal Assessment Trajectory` });
+    remedial.push(`Maintain current academic momentum and target university distinction rank.`);
+    remedial.push(`Encourage participation in technical paper presentations and hackathons.`);
   }
 
-  // Update currentStudent state
-  currentStudent = {
-    id: currentStudent.id || `STU-${Math.floor(1000 + Math.random() * 9000)}`,
-    attendance,
-    study,
-    gpa,
-    assignments,
-    midterm,
-    sleep,
-    riskProb,
-    anomalies,
-    interventions,
-    isAtRisk
+  // Save to activeStudent state
+  activeStudent = {
+    roll, name, subject, priorCGPA,
+    attendance: att, ia1, ia2, labs, study,
+    predScore: res.finalMarks,
+    predCGPA: res.projCGPA,
+    targetScore: res.targetSEE,
+    status: res.status,
+    grade: res.grade,
+    anomalies, remedial
   };
 
-  // Update UI Elements
-  renderPredictionResults();
-  updateSimulatorCharts();
-
-  // Log to SQLite Audit Stream if triggered via run prediction button or load
-  if (shouldLogAudit) {
-    const timeStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
-    const topAnomaly = anomalies.find(a => a.type !== 'success')?.text || 'None (Normal Profile)';
-    const topRec = interventions[0] || 'Maintain trajectory';
-
-    auditLogs.unshift({
-      timestamp: timeStr,
-      student_id: currentStudent.id,
-      status: isAtRisk ? 'At-Risk' : 'On-Track',
-      risk_prob: `${riskProb.toFixed(1)}%`,
-      anomaly: topAnomaly,
-      rec: topRec
-    });
-
-    if (auditLogs.length > 20) auditLogs.pop();
-    renderAuditLogs();
-  }
+  renderOutputUI();
+  updatePredictorCharts();
 }
 
 // Render Prediction Result Panel
-function renderPredictionResults() {
-  const { riskProb, isAtRisk, anomalies, interventions } = currentStudent;
+function renderOutputUI() {
+  const { predScore, targetScore, status, grade, anomalies, remedial } = activeStudent;
 
-  // Gauge animation (circumference = 2 * PI * 70 ≈ 440)
-  const meter = document.getElementById('riskGauge');
-  const maxDash = 440;
-  const offset = maxDash - (maxDash * (riskProb / 100));
+  // Meter Circle Animation (circumference 440)
+  const meter = document.getElementById('scoreMeter');
+  const offset = 440 - (440 * (predScore / 100));
   meter.style.strokeDashoffset = offset;
-  meter.style.stroke = isAtRisk ? 'var(--accent-rose)' : 'var(--accent-emerald)';
-
-  document.getElementById('riskValText').innerText = `${riskProb.toFixed(1)}%`;
-
-  // Status Badge & Texts
-  const badge = document.getElementById('statusBadge');
-  const title = document.getElementById('outcomeTitle');
-  const desc = document.getElementById('outcomeDescription');
-
-  if (isAtRisk) {
-    badge.className = 'outcome-status-badge badge-risk';
-    badge.innerHTML = `<span>●</span> At-Risk Academic Intervention Flagged`;
-    title.innerText = `Elevated Risk Probability (${riskProb.toFixed(1)}%)`;
-    desc.innerText = `ML Classifier flagged potential academic shortfall based on identified risk vectors. Early proactive intervention is strongly recommended.`;
+  
+  if (status === 'weak') {
+    meter.style.stroke = 'var(--accent-rose)';
+  } else if (status === 'borderline') {
+    meter.style.stroke = 'var(--accent-amber)';
   } else {
-    badge.className = 'outcome-status-badge badge-safe';
-    badge.innerHTML = `<span>●</span> On-Track Academic Progression`;
-    title.innerText = `Low Academic Risk Probability (${riskProb.toFixed(1)}%)`;
-    desc.innerText = `Predictive indicators signify solid academic continuity. Study routine and attendance demonstrate consistent engagement.`;
+    meter.style.stroke = 'var(--accent-emerald)';
   }
 
-  // Anomaly Tags
-  const anomalyContainer = document.getElementById('anomalyTagsContainer');
-  anomalyContainer.innerHTML = '';
+  document.getElementById('predFinalScore').innerText = predScore.toFixed(1);
+
+  // Status Pill
+  const pill = document.getElementById('predStatusPill');
+  if (status === 'weak') {
+    pill.className = 'status-pill pill-danger';
+    pill.innerHTML = `<span>●</span> Critical Weak Student (At-Risk)`;
+  } else if (status === 'borderline') {
+    pill.className = 'status-pill pill-warning';
+    pill.innerHTML = `<span>●</span> Borderline Pass Student`;
+  } else {
+    pill.className = 'status-pill pill-safe';
+    pill.innerHTML = `<span>●</span> On-Track / Good Standing`;
+  }
+
+  document.getElementById('predGradeText').innerText = `Projected Grade: ${grade}`;
+  document.getElementById('targetExamScore').innerText = `${targetScore} / 100`;
+
+  // Explanation
+  const desc = document.getElementById('predExplanation');
+  if (status === 'weak') {
+    desc.innerText = `Student is at severe risk of failing or course backlog. Low internal assessment performance and attendance deficits compound to create academic shortfall. Immediate remedial intervention required.`;
+  } else if (status === 'borderline') {
+    desc.innerText = `Student is hovering around the minimum passing line. A solid performance in the Semester End Examination (SEE) is required to secure clear pass without carryover backlogs.`;
+  } else {
+    desc.innerText = `Student exhibits solid academic discipline with consistent internal assessment metrics and high attendance compliance.`;
+  }
+
+  // Diagnostic Badges
+  const badgesBox = document.getElementById('diagBadgesContainer');
+  badgesBox.innerHTML = '';
   anomalies.forEach(a => {
     const span = document.createElement('span');
-    span.className = `diag-tag ${a.type}`;
+    span.className = `alert-tag ${a.type}`;
     span.innerText = a.text;
-    anomalyContainer.appendChild(span);
+    badgesBox.appendChild(span);
   });
 
-  // Prescriptive Interventions
-  const recList = document.getElementById('recommendationList');
-  recList.innerHTML = '';
-  interventions.forEach((rec, idx) => {
+  // Remedial Plan List
+  const remList = document.getElementById('remedialList');
+  remList.innerHTML = '';
+  remedial.forEach((item, idx) => {
     const li = document.createElement('li');
-    li.className = 'intervention-item';
-    li.innerHTML = `
-      <span class="bullet">${idx + 1}</span>
-      <span>${rec}</span>
-    `;
-    recList.appendChild(li);
+    li.className = 'remedial-item';
+    li.innerHTML = `<span class="num">${idx + 1}</span><span>${item}</span>`;
+    remList.appendChild(li);
   });
 }
 
-// Initialize Simulator Radar and Local Feature Contribution Charts
-function initSimulatorCharts() {
-  // Multidimensional Student Radar
-  const ctxRadar = document.getElementById('studentRadarChart').getContext('2d');
-  studentRadarChart = new Chart(ctxRadar, {
-    type: 'radar',
+// Sliders live text sync
+function onDataChanged() {
+  const att = parseFloat(document.getElementById('inpAttendance').value).toFixed(1);
+  const ia1 = parseFloat(document.getElementById('inpIA1').value).toFixed(1);
+  const ia2 = parseFloat(document.getElementById('inpIA2').value).toFixed(1);
+  const labs = parseFloat(document.getElementById('inpLabs').value);
+  const study = parseFloat(document.getElementById('inpStudy').value);
+
+  const badgeAtt = document.getElementById('badgeAttendance');
+  badgeAtt.innerText = `${att}%`;
+  badgeAtt.className = `val-badge ${parseFloat(att) < 75 ? 'danger' : 'success'}`;
+
+  document.getElementById('badgeIA1').innerText = `${ia1} / 30`;
+  document.getElementById('badgeIA2').innerText = `${ia2} / 30`;
+  document.getElementById('badgeLabs').innerText = `${labs}%`;
+  document.getElementById('badgeStudy').innerText = `${study} hrs`;
+
+  computeFutureScore(false);
+}
+
+// Quick Test Presets (For Mentor Demonstration)
+function loadStudentPreset(type) {
+  if (type === 'critical') {
+    document.getElementById('inpRollNo').value = "22CS108";
+    document.getElementById('inpName').value = "Karan Verma";
+    document.getElementById('inpPriorCGPA').value = "5.80";
+    setSliderValues(68.0, 13.0, 10.0, 62, 6);
+  } else if (type === 'borderline') {
+    document.getElementById('inpRollNo').value = "22CS115";
+    document.getElementById('inpName').value = "Rahul Sharma";
+    document.getElementById('inpPriorCGPA').value = "6.20";
+    setSliderValues(76.0, 14.5, 14.0, 70, 8);
+  } else if (type === 'detention') {
+    document.getElementById('inpRollNo').value = "22CS122";
+    document.getElementById('inpName').value = "Sneha Reddy";
+    document.getElementById('inpPriorCGPA').value = "7.10";
+    setSliderValues(58.0, 22.0, 20.0, 80, 12);
+  } else if (type === 'distinction') {
+    document.getElementById('inpRollNo').value = "22CS101";
+    document.getElementById('inpName').value = "Ananya Iyer";
+    document.getElementById('inpPriorCGPA').value = "9.10";
+    setSliderValues(94.0, 28.5, 29.0, 95, 20);
+  }
+}
+
+function setSliderValues(att, ia1, ia2, labs, study) {
+  document.getElementById('inpAttendance').value = att;
+  document.getElementById('inpIA1').value = ia1;
+  document.getElementById('inpIA2').value = ia2;
+  document.getElementById('inpLabs').value = labs;
+  document.getElementById('inpStudy').value = study;
+  onDataChanged();
+}
+
+// Initialize Predictor Mini Charts
+function initPredictorCharts() {
+  // Trajectory Chart (IA-1 vs IA-2)
+  const ctxTraj = document.getElementById('internalTrajectoryChart').getContext('2d');
+  internalTrajectoryChart = new Chart(ctxTraj, {
+    type: 'bar',
     data: {
-      labels: ['Attendance', 'Study Hrs', 'Prior GPA', 'Assignments', 'Midterm', 'Sleep'],
-      datasets: [
-        {
-          label: 'Student',
-          data: [85, 51, 80, 82, 78, 70],
-          backgroundColor: 'rgba(139, 92, 246, 0.25)',
-          borderColor: '#8b5cf6',
-          borderWidth: 2,
-          pointBackgroundColor: '#c084fc'
-        },
-        {
-          label: 'Cohort Median',
-          data: [75, 52, 75, 70, 72, 65],
-          backgroundColor: 'rgba(6, 182, 212, 0.1)',
-          borderColor: '#06b6d4',
-          borderWidth: 1.5,
-          borderDash: [4, 4],
-          pointBackgroundColor: '#06b6d4'
-        }
-      ]
+      labels: ['IA-1 (Midterm 1)', 'IA-2 (Midterm 2)'],
+      datasets: [{
+        label: 'Marks Obtained',
+        data: [13, 10],
+        backgroundColor: ['#6366f1', '#f43f5e'],
+        borderRadius: 6
+      }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        r: {
-          min: 0,
-          max: 100,
-          ticks: { display: false },
-          grid: { color: 'rgba(255, 255, 255, 0.07)' },
-          angleLines: { color: 'rgba(255, 255, 255, 0.07)' },
-          pointLabels: { color: '#94a3b8', font: { size: 10, family: 'Outfit' } }
-        }
+        y: { max: 30, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        x: { ticks: { color: '#cbd5e1' }, grid: { display: false } }
       },
-      plugins: {
-        legend: {
-          position: 'top',
-          labels: { color: '#cbd5e1', font: { size: 10 }, boxWidth: 10 }
-        }
-      }
+      plugins: { legend: { display: false } }
     }
   });
 
-  // Local Contribution Chart (SHAP Impact)
-  const ctxContrib = document.getElementById('localContributionChart').getContext('2d');
-  localContributionChart = new Chart(ctxContrib, {
+  // Component Weight Breakdown
+  const ctxW = document.getElementById('weightContributionChart').getContext('2d');
+  weightContributionChart = new Chart(ctxW, {
     type: 'bar',
     data: {
-      labels: ['Study Hrs', 'Attendance', 'Prior GPA', 'Midterm', 'Assignments', 'Sleep'],
+      labels: ['Prior CGPA (35%)', 'Internals (40%)', 'Labs (15%)', 'Attendance (10%)'],
       datasets: [{
-        label: 'Risk Contribution',
-        data: [15, 10, 8, 4, 2, 1],
-        backgroundColor: '#8b5cf6',
+        label: 'Contribution',
+        data: [20.3, 15.3, 9.3, 6.8],
+        backgroundColor: ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b'],
         borderRadius: 4
       }]
     },
@@ -460,130 +384,144 @@ function initSimulatorCharts() {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        x: {
-          grid: { color: 'rgba(255, 255, 255, 0.05)' },
-          ticks: { color: '#64748b', font: { size: 9 } }
-        },
-        y: {
-          grid: { display: false },
-          ticks: { color: '#cbd5e1', font: { size: 10 } }
-        }
+        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        y: { ticks: { color: '#cbd5e1' }, grid: { display: false } }
       },
       plugins: { legend: { display: false } }
     }
   });
 }
 
-function updateSimulatorCharts() {
-  if (!studentRadarChart || !localContributionChart) return;
+function updatePredictorCharts() {
+  if (!internalTrajectoryChart || !weightContributionChart) return;
 
-  // Normalize student values to 0-100 scale for radar
-  const normAttendance = (currentStudent.attendance / 100) * 100;
-  const normStudy = (currentStudent.study / 35) * 100;
-  const normGPA = (currentStudent.gpa / 4.0) * 100;
-  const normAssignments = (currentStudent.assignments / 100) * 100;
-  const normMidterm = (currentStudent.midterm / 100) * 100;
-  const normSleep = (currentStudent.sleep / 10.0) * 100;
+  const { ia1, ia2, priorCGPA, labs, attendance } = activeStudent;
 
-  studentRadarChart.data.datasets[0].data = [
-    normAttendance,
-    normStudy,
-    normGPA,
-    normAssignments,
-    normMidterm,
-    normSleep
+  internalTrajectoryChart.data.datasets[0].data = [ia1, ia2];
+  internalTrajectoryChart.data.datasets[0].backgroundColor = [
+    '#6366f1',
+    ia2 < ia1 ? '#f43f5e' : '#10b981'
   ];
-  studentRadarChart.update('none');
+  internalTrajectoryChart.update('none');
 
-  // Local feature risk impact (approximated SHAP value)
-  const studyImpact = ((35 - currentStudent.study) / 35) * 45;
-  const attImpact = ((100 - currentStudent.attendance) / 60) * 25;
-  const gpaImpact = ((4.0 - currentStudent.gpa) / 3.0) * 15;
-  const midImpact = ((100 - currentStudent.midterm) / 70) * 10;
-  const asgImpact = ((100 - currentStudent.assignments) / 70) * 3;
-  const slpImpact = (currentStudent.sleep < 5.5 ? 8 : 1);
+  const cGPA = +((priorCGPA / 10.0) * 35).toFixed(1);
+  const cIA = +(((ia1 + ia2) / 60.0) * 40).toFixed(1);
+  const cLab = +((labs / 100.0) * 15).toFixed(1);
+  const cAtt = +((attendance / 100.0) * 10).toFixed(1);
 
-  const colors = [
-    studyImpact > 18 ? '#f43f5e' : '#8b5cf6',
-    attImpact > 12 ? '#f43f5e' : '#8b5cf6',
-    gpaImpact > 8 ? '#f59e0b' : '#8b5cf6',
-    midImpact > 6 ? '#f59e0b' : '#8b5cf6',
-    asgImpact > 3 ? '#f59e0b' : '#8b5cf6',
-    slpImpact > 4 ? '#f43f5e' : '#8b5cf6'
-  ];
-
-  localContributionChart.data.datasets[0].data = [
-    +studyImpact.toFixed(1),
-    +attImpact.toFixed(1),
-    +gpaImpact.toFixed(1),
-    +midImpact.toFixed(1),
-    +asgImpact.toFixed(1),
-    +slpImpact.toFixed(1)
-  ];
-  localContributionChart.data.datasets[0].backgroundColor = colors;
-  localContributionChart.update('none');
+  weightContributionChart.data.datasets[0].data = [cGPA, cIA, cLab, cAtt];
+  weightContributionChart.update('none');
 }
 
-// Tab 2 Analytics Charts Initialization
-function initAnalyticsCharts() {
-  // Feature Importances Bar Chart
-  const ctxFeat = document.getElementById('featureChart').getContext('2d');
-  const importances = modelMetrics.feature_importances;
-  const featLabels = ['Weekly Study Hrs', 'Attendance Rate', 'Prior GPA', 'Midterm Score', 'Assignment %', 'Daily Sleep'];
-  const featValues = [
-    importances.weekly_study_hours || 0.478,
-    importances.attendance_rate || 0.229,
-    importances.prior_gpa || 0.125,
-    importances.midterm_score || 0.060,
-    importances.assignment_completion_rate || 0.056,
-    importances.daily_sleep_hours || 0.051
-  ];
+// Tab 2: Class Roster Table
+function initRosterTable() {
+  filterRoster();
+}
 
-  featureChart = new Chart(ctxFeat, {
-    type: 'bar',
-    data: {
-      labels: featLabels,
-      datasets: [{
-        label: 'Gini Importance',
-        data: featValues,
-        backgroundColor: ['#8b5cf6', '#06b6d4', '#3b82f6', '#10b981', '#f59e0b', '#ec4899'],
-        borderRadius: 6
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        x: {
-          grid: { color: 'rgba(255, 255, 255, 0.05)' },
-          ticks: { color: '#94a3b8' }
-        },
-        y: {
-          grid: { display: false },
-          ticks: { color: '#e2e8f0', font: { weight: '600' } }
-        }
-      },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => `Weight: ${(ctx.parsed.x * 100).toFixed(1)}%`
-          }
-        }
-      }
-    }
+function setRosterFilter(filter) {
+  currentRosterFilter = filter;
+  document.getElementById('fAll').classList.toggle('active', filter === 'all');
+  document.getElementById('fWeak').classList.toggle('active', filter === 'weak');
+  document.getElementById('fShortage').classList.toggle('active', filter === 'shortage');
+  document.getElementById('fDistinction').classList.toggle('active', filter === 'distinction');
+  filterRoster();
+}
+
+function filterRoster() {
+  const query = (document.getElementById('rosterSearch')?.value || '').trim().toLowerCase();
+  const tbody = document.getElementById('rosterTableBody');
+  tbody.innerHTML = '';
+
+  let filtered = CLASS_ROSTER.map(s => {
+    const calc = calculateScore(s);
+    return { ...s, ...calc };
   });
 
-  // Cohort Risk Distribution Doughnut
-  const ctxDist = document.getElementById('riskDistChart').getContext('2d');
-  riskDistChart = new Chart(ctxDist, {
+  if (query) {
+    filtered = filtered.filter(s => s.roll.toLowerCase().includes(query) || s.name.toLowerCase().includes(query));
+  }
+
+  if (currentRosterFilter === 'weak') {
+    filtered = filtered.filter(s => s.finalMarks < 45.0);
+  } else if (currentRosterFilter === 'shortage') {
+    filtered = filtered.filter(s => s.att < 75.0);
+  } else if (currentRosterFilter === 'distinction') {
+    filtered = filtered.filter(s => s.finalMarks >= 75.0);
+  }
+
+  filtered.forEach(s => {
+    const tr = document.createElement('tr');
+    const isWeak = s.finalMarks < 45.0;
+    const isShortage = s.att < 75.0;
+
+    tr.innerHTML = `
+      <td class="font-mono"><strong>${s.roll}</strong></td>
+      <td>${s.name}</td>
+      <td style="color: ${isShortage ? '#f87171' : '#cbd5e1'}; font-weight: ${isShortage ? '700' : 'normal'};">
+        ${s.att.toFixed(1)}% ${isShortage ? '⚠️' : ''}
+      </td>
+      <td class="font-mono">${s.gpa.toFixed(2)}</td>
+      <td>${s.ia1.toFixed(1)}</td>
+      <td>${s.ia2.toFixed(1)}</td>
+      <td class="font-mono" style="font-weight: 800; color: ${isWeak ? '#fb7185' : s.finalMarks >= 75 ? '#34d399' : '#fff'};">
+        ${s.finalMarks.toFixed(1)}
+      </td>
+      <td>
+        <span class="status-pill ${isWeak ? 'pill-danger' : s.finalMarks >= 75 ? 'pill-safe' : 'pill-warning'}" style="padding:2px 8px; font-size:0.7rem;">
+          ${s.grade.split('(')[0].trim()}
+        </span>
+      </td>
+      <td>
+        <button class="btn-load-row" onclick="loadStudentFromRoster('${s.roll}')">
+          Load ↗
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('rosterCountBadge').innerText = `${filtered.length} of ${CLASS_ROSTER.length} Students`;
+}
+
+function loadStudentFromRoster(roll) {
+  const target = CLASS_ROSTER.find(s => s.roll === roll);
+  if (!target) return;
+
+  document.getElementById('inpRollNo').value = target.roll;
+  document.getElementById('inpName').value = target.name;
+  document.getElementById('inpPriorCGPA').value = target.gpa.toFixed(2);
+  setSliderValues(target.att, target.ia1, target.ia2, target.labs, target.study);
+
+  switchPortalTab('predictor');
+}
+
+// Tab 3: Department Analytics Charts
+function initAnalyticsCharts() {
+  // Compute class-wide statistics
+  const scoredClass = CLASS_ROSTER.map(s => calculateScore(s));
+
+  let distinction = 0, firstClass = 0, secondClass = 0, weakFail = 0;
+  scoredClass.forEach(s => {
+    if (s.finalMarks >= 75) distinction++;
+    else if (s.finalMarks >= 60) firstClass++;
+    else if (s.finalMarks >= 45) secondClass++;
+    else weakFail++;
+  });
+
+  // Grade Distribution Doughnut
+  const ctxGrade = document.getElementById('gradeDistChart').getContext('2d');
+  gradeDistChart = new Chart(ctxGrade, {
     type: 'doughnut',
     data: {
-      labels: ['On-Track (78%)', 'At-Risk (22%)'],
+      labels: [
+        `Distinction (≥75): ${distinction}`,
+        `First Class (60-74): ${firstClass}`,
+        `Second Class (45-59): ${secondClass}`,
+        `Weak / Backlog (<45): ${weakFail}`
+      ],
       datasets: [{
-        data: [780, 220],
-        backgroundColor: ['#10b981', '#f43f5e'],
+        data: [distinction, firstClass, secondClass, weakFail],
+        backgroundColor: ['#10b981', '#6366f1', '#f59e0b', '#f43f5e'],
         borderWidth: 0
       }]
     },
@@ -592,294 +530,131 @@ function initAnalyticsCharts() {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          position: 'bottom',
-          labels: { color: '#cbd5e1', font: { size: 12, family: 'Outfit' }, padding: 16 }
+          position: 'right',
+          labels: { color: '#cbd5e1', font: { size: 11, family: 'Outfit' }, padding: 12 }
         }
       },
-      cutout: '72%'
+      cutout: '68%'
     }
   });
 
-  // ROC Curve Interactive Line Chart
-  const ctxRoc = document.getElementById('rocCurveChart').getContext('2d');
-  const rocPoints = [
-    { x: 0.0, y: 0.0 },
-    { x: 0.02, y: 0.65 },
-    { x: 0.04, y: 0.82 },
-    { x: 0.08, y: 0.91 },
-    { x: 0.14, y: 0.96 },
-    { x: 0.22, y: 0.98 },
-    { x: 0.40, y: 0.99 },
-    { x: 1.0, y: 1.0 }
-  ];
+  // Attendance vs Final Score Scatter
+  const ctxAtt = document.getElementById('attVsScoreChart').getContext('2d');
+  const scatterPoints = CLASS_ROSTER.map(s => {
+    const sc = calculateScore(s);
+    return { x: s.att, y: sc.finalMarks };
+  });
 
-  rocCurveChart = new Chart(ctxRoc, {
-    type: 'line',
+  attVsScoreChart = new Chart(ctxAtt, {
+    type: 'scatter',
     data: {
-      datasets: [
-        {
-          label: 'Random Forest ROC (AUC = 0.976)',
-          data: rocPoints,
-          borderColor: '#8b5cf6',
-          backgroundColor: 'rgba(139, 92, 246, 0.15)',
-          fill: true,
-          tension: 0.35,
-          borderWidth: 2.5,
-          pointRadius: 4,
-          pointBackgroundColor: '#c084fc'
-        },
-        {
-          label: 'Random Guess Baseline (AUC = 0.50)',
-          data: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
-          borderColor: '#475569',
-          borderDash: [5, 5],
-          borderWidth: 1.5,
-          pointRadius: 0,
-          fill: false
-        }
-      ]
+      datasets: [{
+        label: 'Students (Attendance vs Score)',
+        data: scatterPoints,
+        backgroundColor: scatterPoints.map(p => p.y < 45 ? '#f43f5e' : p.y >= 75 ? '#10b981' : '#6366f1'),
+        pointRadius: 5
+      }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
         x: {
-          type: 'linear',
-          min: 0,
-          max: 1.0,
-          title: { display: true, text: 'False Positive Rate (FPR)', color: '#64748b' },
-          grid: { color: 'rgba(255, 255, 255, 0.05)' },
-          ticks: { color: '#94a3b8' }
+          min: 45, max: 100,
+          title: { display: true, text: 'Attendance Rate (%)', color: '#64748b' },
+          ticks: { color: '#94a3b8' },
+          grid: { color: 'rgba(255,255,255,0.05)' }
         },
         y: {
-          type: 'linear',
-          min: 0,
-          max: 1.0,
-          title: { display: true, text: 'True Positive Rate (TPR)', color: '#64748b' },
-          grid: { color: 'rgba(255, 255, 255, 0.05)' },
-          ticks: { color: '#94a3b8' }
+          min: 20, max: 100,
+          title: { display: true, text: 'Predicted Final Score (/100)', color: '#64748b' },
+          ticks: { color: '#94a3b8' },
+          grid: { color: 'rgba(255,255,255,0.05)' }
         }
       },
-      plugins: {
-        legend: {
-          position: 'top',
-          labels: { color: '#cbd5e1', font: { size: 11 } }
-        }
-      }
+      plugins: { legend: { display: false } }
     }
   });
 }
 
-// Tab 3: Dataset Table Browser
-function setupDatabaseTable() {
-  filterDataset();
+// Update Header KPIs
+function updateKPISummary() {
+  const scored = CLASS_ROSTER.map(s => calculateScore(s));
+  const total = scored.length;
+  const avg = (scored.reduce((acc, s) => acc + s.finalMarks, 0) / total).toFixed(1);
+  const weak = scored.filter(s => s.finalMarks < 45.0).length;
+  const shortage = CLASS_ROSTER.filter(s => s.att < 75.0).length;
+
+  document.getElementById('kpiClassStrength').innerText = total;
+  document.getElementById('kpiClassMean').innerText = avg;
+  document.getElementById('kpiWeakCount').innerText = weak;
+  document.getElementById('kpiDetentionCount').innerText = shortage;
 }
 
-function setDbFilter(filter) {
-  currentFilter = filter;
-  document.getElementById('filterAll').classList.toggle('active', filter === 'all');
-  document.getElementById('filterAtRisk').classList.toggle('active', filter === 'risk');
-  document.getElementById('filterOnTrack').classList.toggle('active', filter === 'safe');
-  filterDataset();
-}
+// Tab Switching
+function switchPortalTab(tabId) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('active'));
 
-function filterDataset() {
-  const query = (document.getElementById('dbSearchInput')?.value || '').trim().toLowerCase();
+  const tabBtn = Array.from(document.querySelectorAll('.nav-tab')).find(b => b.innerText.toLowerCase().includes(tabId));
+  if (tabBtn) tabBtn.classList.add('active');
 
-  filteredStudents = allStudents.filter(s => {
-    const matchesQuery = !query || s.student_id.toLowerCase().includes(query);
-    const matchesStatus =
-      currentFilter === 'all' ? true :
-      currentFilter === 'risk' ? s.at_risk === 1 :
-      s.at_risk === 0;
-    return matchesQuery && matchesStatus;
-  });
+  const pane = document.getElementById(`tab-${tabId}`);
+  if (pane) pane.classList.add('active');
 
-  currentPage = 1;
-  renderDatabasePage();
-}
-
-function changePage(direction) {
-  currentPage += direction;
-  renderDatabasePage();
-}
-
-function renderDatabasePage() {
-  const tbody = document.getElementById('datasetTableBody');
-  tbody.innerHTML = '';
-
-  const total = filteredStudents.length;
-  const totalPages = Math.ceil(total / pageSize) || 1;
-  currentPage = Math.max(1, Math.min(currentPage, totalPages));
-
-  const startIdx = (currentPage - 1) * pageSize;
-  const endIdx = Math.min(startIdx + pageSize, total);
-  const pageSlice = filteredStudents.slice(startIdx, endIdx);
-
-  if (pageSlice.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 24px; color: var(--text-dim);">No matching student records found.</td></tr>`;
-  } else {
-    pageSlice.forEach(s => {
-      const tr = document.createElement('tr');
-      const isRisk = s.at_risk === 1;
-      tr.innerHTML = `
-        <td class="mono"><strong>${s.student_id}</strong></td>
-        <td>${s.attendance_rate}%</td>
-        <td>${s.weekly_study_hours} hrs</td>
-        <td class="mono">${s.prior_gpa.toFixed(2)}</td>
-        <td>${s.assignment_completion_rate}%</td>
-        <td>${s.midterm_score}%</td>
-        <td>${s.daily_sleep_hours}h</td>
-        <td>
-          <span class="outcome-status-badge ${isRisk ? 'badge-risk' : 'badge-safe'}" style="margin:0; padding:2px 8px; font-size:0.7rem;">
-            ${isRisk ? 'At-Risk' : 'On-Track'}
-          </span>
-        </td>
-        <td>
-          <button class="btn-table-load" onclick="loadStudentIntoSimulator('${s.student_id}')">
-            Load ↗
-          </button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
+  if (tabId === 'analytics') {
+    setTimeout(() => {
+      if (gradeDistChart) gradeDistChart.resize();
+      if (attVsScoreChart) attVsScoreChart.resize();
+    }, 50);
   }
-
-  // Update pagination info
-  document.getElementById('pageInfoText').innerText = total === 0 ? '0 students' : `Showing ${startIdx + 1}-${endIdx} of ${total} students (Page ${currentPage} of ${totalPages})`;
-  document.getElementById('btnPrevPage').disabled = currentPage <= 1;
-  document.getElementById('btnNextPage').disabled = currentPage >= totalPages;
 }
 
-// Load a specific student from the dataset into the interactive simulator
-function loadStudentIntoSimulator(studentId) {
-  const target = allStudents.find(s => s.student_id === studentId);
-  if (!target) return;
+// CSV Export for Weak Students
+function exportWeakStudentsCSV() {
+  const weakStudents = CLASS_ROSTER.map(s => {
+    const calc = calculateScore(s);
+    return { ...s, ...calc };
+  }).filter(s => s.finalMarks < 45.0 || s.att < 75.0);
 
-  currentStudent.id = target.student_id;
-  setSliderValues(
-    target.attendance_rate,
-    target.weekly_study_hours,
-    target.prior_gpa,
-    target.assignment_completion_rate,
-    target.midterm_score,
-    target.daily_sleep_hours
-  );
-
-  // Switch to simulator tab and re-run prediction
-  switchTabDirect('simulator');
-  runMLPrediction(true);
-}
-
-function switchTabDirect(tabId) {
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
-
-  const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.innerText.toLowerCase().includes(tabId));
-  if (btn) btn.classList.add('active');
-
-  const targetPane = document.getElementById(`tab-${tabId}`);
-  if (targetPane) targetPane.classList.add('active');
-}
-
-// Tab 4: Audit Log Table Rendering
-function renderAuditLogs() {
-  const tbody = document.getElementById('auditTableBody');
-  if (!tbody) return;
-  tbody.innerHTML = '';
-
-  auditLogs.forEach(log => {
-    const tr = document.createElement('tr');
-    const isRisk = log.status === 'At-Risk';
-    tr.innerHTML = `
-      <td style="color: var(--text-dim); font-size:0.78rem;" class="mono">${log.timestamp}</td>
-      <td class="mono"><strong>${log.student_id}</strong></td>
-      <td>
-        <span class="outcome-status-badge ${isRisk ? 'badge-risk' : 'badge-safe'}" style="margin:0; padding:2px 8px; font-size:0.7rem;">
-          ${log.status}
-        </span>
-      </td>
-      <td class="mono" style="font-weight:700;">${log.risk_prob}</td>
-      <td style="color: ${isRisk ? '#fda4af' : '#6ee7b7'}; font-size:0.8rem;">${log.anomaly}</td>
-      <td style="color: #cbd5e1; font-size:0.8rem;">${log.rec}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-function clearAuditLogs() {
-  auditLogs = [];
-  renderAuditLogs();
-}
-
-function exportAuditLogCSV() {
-  if (auditLogs.length === 0) {
-    alert('Audit log is empty.');
-    return;
-  }
-  let csv = "Timestamp,StudentID,Status,RiskProbability,AnomalyDetected,Recommendation\n";
-  auditLogs.forEach(l => {
-    csv += `"${l.timestamp}","${l.student_id}","${l.status}","${l.risk_prob}","${l.anomaly.replace(/"/g, '""')}","${l.rec.replace(/"/g, '""')}"\n`;
+  let csv = "RollNo,StudentName,Attendance%,PriorCGPA,IA1_Marks,IA2_Marks,PredictedFinalScore,TargetToPass,Status,RemedialActionNeeded\n";
+  weakStudents.forEach(s => {
+    const remedialFlag = s.finalMarks < 45.0 ? "Mandatory Remedial Classes" : "Attendance Undertaking";
+    csv += `"${s.roll}","${s.name}",${s.att.toFixed(1)},${s.gpa.toFixed(2)},${s.ia1.toFixed(1)},${s.ia2.toFixed(1)},${s.finalMarks.toFixed(1)},${s.targetSEE},"${s.grade}","${remedialFlag}"\n`;
   });
 
   const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `student_audit_logs_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.download = `Weak_Students_Action_List_CSE_SecA_${new Date().toISOString().slice(0, 10)}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
 
-// Academic Diagnostic Report Modal
-function openReportModal() {
-  const modal = document.getElementById('reportModal');
-  const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+// Official University Parent / Remedial Notice Modal
+function openNoticeModal() {
+  const modal = document.getElementById('noticeModal');
 
-  document.getElementById('rptStudentId').innerText = currentStudent.id;
-  document.getElementById('rptTimestamp').innerText = now;
-  document.getElementById('rptRiskProb').innerText = `${currentStudent.riskProb.toFixed(1)}% (${currentStudent.isAtRisk ? 'At-Risk' : 'On-Track'})`;
+  document.getElementById('notRollNo').innerText = activeStudent.roll;
+  document.getElementById('notName').innerText = activeStudent.name;
+  document.getElementById('notSubject').innerText = activeStudent.subject;
+  document.getElementById('notAttendance').innerText = `${activeStudent.attendance.toFixed(1)}% ${activeStudent.attendance < 75 ? '(<75% Shortage)' : ''}`;
+  document.getElementById('notScores').innerText = `${activeStudent.ia1.toFixed(1)} / 30 and ${activeStudent.ia2.toFixed(1)} / 30`;
+  document.getElementById('notPredScore').innerText = `${activeStudent.predScore.toFixed(1)} / 100 (${activeStudent.grade})`;
 
-  // Metric snapshot
-  const metricsGrid = document.getElementById('rptMetricsGrid');
-  metricsGrid.innerHTML = `
-    <div class="report-field"><label>Attendance</label><value>${currentStudent.attendance.toFixed(1)}%</value></div>
-    <div class="report-field"><label>Study Hours</label><value>${currentStudent.study.toFixed(1)} hrs/wk</value></div>
-    <div class="report-field"><label>Prior GPA</label><value>${currentStudent.gpa.toFixed(2)}</value></div>
-    <div class="report-field"><label>Assignments</label><value>${currentStudent.assignments.toFixed(1)}%</value></div>
-    <div class="report-field"><label>Midterm Exam</label><value>${currentStudent.midterm.toFixed(1)}%</value></div>
-    <div class="report-field"><label>Daily Sleep</label><value>${currentStudent.sleep.toFixed(1)} hrs</value></div>
-  `;
-
-  // Anomalies
-  const anomContainer = document.getElementById('rptAnomalies');
-  anomContainer.innerHTML = '';
-  currentStudent.anomalies.forEach(a => {
-    const span = document.createElement('span');
-    span.className = `diag-tag ${a.type}`;
-    span.innerText = a.text;
-    anomContainer.appendChild(span);
-  });
-
-  // Interventions
-  const intContainer = document.getElementById('rptInterventions');
-  intContainer.innerHTML = '';
-  currentStudent.interventions.forEach((rec, idx) => {
-    const li = document.createElement('li');
-    li.className = 'intervention-item';
-    li.innerHTML = `<span class="bullet">${idx + 1}</span><span>${rec}</span>`;
-    intContainer.appendChild(li);
-  });
+  document.getElementById('notAttBody').innerText = `${activeStudent.attendance.toFixed(1)}%`;
+  document.getElementById('notTargetBody').innerText = `${activeStudent.targetScore} marks`;
 
   modal.classList.add('active');
 }
 
-function closeReportModal() {
-  document.getElementById('reportModal').classList.remove('active');
+function closeNoticeModal() {
+  document.getElementById('noticeModal').classList.remove('active');
 }
 
-function closeReportModalOnBackdrop(e) {
-  if (e.target.id === 'reportModal') {
-    closeReportModal();
+function closeNoticeOnBackdrop(e) {
+  if (e.target.id === 'noticeModal') {
+    closeNoticeModal();
   }
 }

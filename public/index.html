@@ -3,119 +3,120 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Performance Prediction & Anomaly Engine | AI Academic Intelligence</title>
-  <meta name="description" content="Production-ready machine learning system to predict student academic risk, detect learning anomalies, and generate prescriptive interventions. Built with Random Forest, Gradient Boosting, Flask & SQLite.">
-  
-  <!-- Modern Typography & Icons -->
+  <title>EduPortal AI • College Student Future Score & Early Warning System</title>
+  <meta name="description" content="College faculty ERP portal to predict student future final scores, detect weak students, monitor attendance shortage, and prescribe remedial action plans.">
+
+  <!-- Typography & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 
   <style>
     :root {
-      --bg: #070b14;
-      --bg-elevated: #0d1322;
-      --panel: #111a2e;
-      --panel-hover: #162038;
+      --bg: #070c18;
+      --bg-elevated: #0d1527;
+      --panel: #111c33;
+      --panel-hover: #162442;
       --panel-border: rgba(255, 255, 255, 0.08);
-      --panel-border-focus: rgba(139, 92, 246, 0.4);
-      --accent: #8b5cf6;
-      --accent-rgb: 139, 92, 246;
+      --panel-border-focus: rgba(99, 102, 241, 0.5);
+      --accent: #6366f1;
+      --accent-purple: #8b5cf6;
       --accent-cyan: #06b6d4;
       --accent-emerald: #10b981;
       --accent-rose: #f43f5e;
       --accent-amber: #f59e0b;
-      --accent-indigo: #6366f1;
-      --text: #f9fafb;
+      --text: #f8fafc;
       --text-muted: #94a3b8;
       --text-dim: #64748b;
       --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
-      --glow-purple: 0 0 30px rgba(139, 92, 246, 0.15);
-      --glow-cyan: 0 0 30px rgba(6, 182, 212, 0.15);
-      --glow-emerald: 0 0 30px rgba(16, 185, 129, 0.15);
-      --glow-rose: 0 0 30px rgba(244, 63, 94, 0.15);
+      --glow-accent: 0 0 25px rgba(99, 102, 241, 0.25);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-main); }
     body {
       background-color: var(--bg);
       background-image: 
-        radial-gradient(circle at 15% 10%, rgba(139, 92, 246, 0.1) 0%, transparent 40%),
-        radial-gradient(circle at 85% 20%, rgba(6, 182, 212, 0.08) 0%, transparent 45%),
-        radial-gradient(circle at 50% 90%, rgba(99, 102, 241, 0.06) 0%, transparent 50%);
+        radial-gradient(circle at 10% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 90% 10%, rgba(6, 182, 212, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 50% 90%, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
       background-attachment: fixed;
       color: var(--text);
       min-height: 100vh;
-      padding: 24px;
+      padding: 20px;
       line-height: 1.5;
     }
 
-    .container { max-width: 1440px; margin: 0 auto; }
+    .app-container { max-width: 1440px; margin: 0 auto; }
 
-    /* Top Navigation Header */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 18px 24px;
-      background: rgba(17, 26, 46, 0.7);
+    /* Top University ERP Header */
+    header.portal-header {
+      background: rgba(17, 28, 51, 0.85);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--panel-border);
-      border-radius: 18px;
-      margin-bottom: 24px;
-      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+      border-radius: 16px;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.6);
+      flex-wrap: wrap;
+      gap: 16px;
     }
 
-    .brand-wrap { display: flex; align-items: center; gap: 16px; }
-    .brand-icon {
+    .brand-section { display: flex; align-items: center; gap: 16px; }
+    .uni-emblem {
       width: 48px;
       height: 48px;
       border-radius: 12px;
-      background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 24px;
-      box-shadow: var(--glow-purple);
+      box-shadow: var(--glow-accent);
+      border: 1px solid rgba(255,255,255,0.15);
     }
-    .brand-text h1 {
-      font-size: 1.45rem;
+    .brand-meta h1 {
+      font-size: 1.35rem;
       font-weight: 800;
-      letter-spacing: -0.02em;
-      background: linear-gradient(135deg, #ffffff 40%, #c084fc 80%, #38bdf8 100%);
+      letter-spacing: -0.01em;
+      background: linear-gradient(135deg, #ffffff 40%, #a5b4fc 80%, #38bdf8 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .brand-text p {
+    .brand-sub {
       color: var(--text-muted);
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 500;
       display: flex;
       align-items: center;
       gap: 8px;
+      margin-top: 2px;
     }
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--accent-emerald);
-      box-shadow: 0 0 10px var(--accent-emerald);
-      display: inline-block;
+    .faculty-badge {
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
     }
 
-    .nav-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .btn-action {
+    .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .btn {
       display: inline-flex;
       align-items: center;
       gap: 7px;
       padding: 8px 16px;
       border-radius: 10px;
-      font-size: 0.84rem;
+      font-size: 0.82rem;
       font-weight: 600;
       text-decoration: none;
       transition: all 0.2s ease;
@@ -125,11 +126,11 @@
     .btn-vercel {
       background: #000;
       color: #fff;
-      border: 1px solid rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.25);
     }
     .btn-vercel:hover {
       background: #111;
-      border-color: rgba(255,255,255,0.4);
+      border-color: rgba(255,255,255,0.5);
       transform: translateY(-1px);
     }
     .btn-ghost {
@@ -142,30 +143,30 @@
       transform: translateY(-1px);
     }
     .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent-indigo));
+      background: linear-gradient(135deg, var(--accent), #4338ca);
       color: #fff;
-      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
     }
     .btn-primary:hover {
       filter: brightness(1.1);
       transform: translateY(-1px);
     }
 
-    /* KPI Highlights */
-    .kpi-grid {
+    /* KPI Summary Row */
+    .kpi-row {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 16px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
-    @media (max-width: 1024px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 600px) { .kpi-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 1024px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .kpi-row { grid-template-columns: 1fr; } }
 
     .kpi-card {
       background: var(--panel);
       border: 1px solid var(--panel-border);
-      border-radius: 16px;
-      padding: 20px 22px;
+      border-radius: 14px;
+      padding: 18px 20px;
       position: relative;
       overflow: hidden;
       transition: transform 0.2s ease, border-color 0.2s ease;
@@ -177,71 +178,35 @@
     .kpi-card::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--kpi-color, var(--accent)), transparent);
+      top: 0; left: 0; right: 0; height: 3px;
+      background: var(--card-accent, var(--accent));
     }
-    .kpi-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .kpi-title {
-      font-size: 0.76rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-    }
-    .kpi-icon {
-      font-size: 1.1rem;
-      padding: 6px;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.04);
-    }
-    .kpi-value {
-      font-size: 2.1rem;
-      font-weight: 800;
-      color: #fff;
-      letter-spacing: -0.02em;
-      line-height: 1.1;
-    }
-    .kpi-sub {
-      margin-top: 8px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .tag-emerald { color: var(--accent-emerald); }
-    .tag-cyan { color: var(--accent-cyan); }
-    .tag-purple { color: #c084fc; }
-    .tag-amber { color: var(--accent-amber); }
+    .kpi-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .kpi-label { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+    .kpi-icon { font-size: 1rem; }
+    .kpi-val { font-size: 1.9rem; font-weight: 800; color: #fff; line-height: 1.1; font-family: var(--font-mono); }
+    .kpi-note { font-size: 0.76rem; font-weight: 600; margin-top: 6px; display: flex; align-items: center; gap: 5px; }
 
-    /* Tab Controls */
-    .tabs-nav {
+    /* Navigation Tabs */
+    .nav-tabs {
       display: flex;
       gap: 8px;
       background: var(--bg-elevated);
       padding: 6px;
-      border-radius: 14px;
+      border-radius: 12px;
       border: 1px solid var(--panel-border);
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       overflow-x: auto;
     }
-    .tab-btn {
+    .nav-tab {
       flex: 1;
-      min-width: 170px;
-      padding: 10px 18px;
-      border-radius: 10px;
+      min-width: 180px;
+      padding: 10px 16px;
+      border-radius: 8px;
       border: none;
       background: transparent;
       color: var(--text-muted);
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
       display: flex;
@@ -251,446 +216,294 @@
       transition: all 0.2s ease;
       white-space: nowrap;
     }
-    .tab-btn:hover {
-      color: var(--text);
-      background: rgba(255, 255, 255, 0.04);
+    .nav-tab:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.04);
     }
-    .tab-btn.active {
+    .nav-tab.active {
       background: var(--panel);
       color: #fff;
       border: 1px solid var(--panel-border-focus);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
 
-    /* Tab Content Layouts */
-    .tab-pane { display: none; }
-    .tab-pane.active { display: block; animation: fadeIn 0.25s ease; }
+    /* Tab Panes */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.2s ease; }
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
+      from { opacity: 0; transform: translateY(4px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Tab 1: Simulator Grid */
-    .sim-grid {
+    /* Tab 1: Predictor Grid */
+    .predictor-layout {
       display: grid;
-      grid-template-columns: 460px 1fr;
-      gap: 24px;
+      grid-template-columns: 480px 1fr;
+      gap: 20px;
     }
-    @media (max-width: 1100px) { .sim-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 1100px) { .predictor-layout { grid-template-columns: 1fr; } }
 
-    .card {
+    .panel {
       background: var(--panel);
       border: 1px solid var(--panel-border);
-      border-radius: 18px;
-      padding: 24px;
-      position: relative;
+      border-radius: 16px;
+      padding: 22px;
     }
-    .card-title {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-    .card-subtitle {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      margin-top: -12px;
-      margin-bottom: 20px;
-    }
+    .panel-header { margin-bottom: 18px; }
+    .panel-title { font-size: 1.15rem; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+    .panel-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
 
-    /* Preset Persona Chips */
-    .persona-bar {
-      margin-bottom: 22px;
+    /* Quick Test Presets */
+    .presets-box {
+      margin-bottom: 20px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--panel-border);
     }
-    .persona-label {
-      font-size: 0.74rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-dim);
-      margin-bottom: 8px;
-      display: block;
-    }
-    .persona-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .chip {
+    .presets-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; display: block; }
+    .presets-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+    .btn-preset {
       background: rgba(255,255,255,0.04);
       border: 1px solid var(--panel-border);
       color: var(--text-muted);
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 0.78rem;
+      padding: 5px 11px;
+      border-radius: 6px;
+      font-size: 0.76rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.15s ease;
-      display: flex;
-      align-items: center;
-      gap: 5px;
     }
-    .chip:hover {
-      background: rgba(139, 92, 246, 0.15);
-      border-color: rgba(139, 92, 246, 0.4);
+    .btn-preset:hover {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: var(--accent);
       color: #fff;
       transform: translateY(-1px);
     }
-    .chip.active {
-      background: rgba(139, 92, 246, 0.25);
-      border-color: var(--accent);
-      color: #c084fc;
-    }
 
-    /* Slider Form Controls */
-    .slider-group {
-      margin-bottom: 18px;
-    }
-    .slider-header {
+    /* Form Fields */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .field-group { margin-bottom: 14px; }
+    .field-group label {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 6px;
-    }
-    .slider-title {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 600;
       color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      margin-bottom: 5px;
     }
-    .slider-badge {
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #fff;
-      background: rgba(255,255,255,0.06);
-      padding: 2px 8px;
-      border-radius: 6px;
+    .field-group input[type="text"], .field-group select {
+      width: 100%;
+      background: var(--bg-elevated);
       border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: #fff;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s ease;
     }
-    .custom-range {
+    .field-group input[type="text"]:focus, .field-group select:focus {
+      border-color: var(--accent);
+    }
+
+    /* Sliders */
+    .range-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .range-input {
       width: 100%;
       height: 6px;
       background: #1e293b;
-      border-radius: 6px;
+      border-radius: 4px;
       outline: none;
       -webkit-appearance: none;
       accent-color: var(--accent);
       cursor: pointer;
     }
-    .custom-range::-webkit-slider-thumb {
+    .range-input::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       border-radius: 50%;
-      background: #c084fc;
+      background: #a5b4fc;
       border: 2px solid #fff;
-      box-shadow: 0 0 10px rgba(139, 92, 246, 0.6);
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
       cursor: pointer;
       transition: transform 0.1s ease;
     }
-    .custom-range::-webkit-slider-thumb:hover {
-      transform: scale(1.2);
-    }
-    .range-limits {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.7rem;
-      color: var(--text-dim);
-      margin-top: 4px;
+    .range-input::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    .range-meta { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-dim); font-family: var(--font-mono); }
+    .val-badge {
       font-family: var(--font-mono);
-    }
-
-    .btn-run-pred {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      border: none;
-      background: linear-gradient(135deg, #8b5cf6, #4f46e5);
+      font-size: 0.8rem;
+      font-weight: 700;
       color: #fff;
-      font-size: 0.98rem;
+      background: rgba(255,255,255,0.06);
+      padding: 1px 7px;
+      border-radius: 5px;
+      border: 1px solid var(--panel-border);
+    }
+    .val-badge.danger { color: #fca5a5; border-color: rgba(244, 63, 94, 0.4); background: rgba(244, 63, 94, 0.12); }
+    .val-badge.success { color: #86efac; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.12); }
+
+    .btn-compute {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, var(--accent), #4338ca);
+      color: #fff;
+      font-size: 0.92rem;
       font-weight: 700;
       cursor: pointer;
+      box-shadow: 0 4px 18px rgba(99, 102, 241, 0.4);
+      transition: all 0.2s ease;
+      margin-top: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
-      transition: all 0.2s ease;
-      margin-top: 24px;
+      gap: 8px;
     }
-    .btn-run-pred:hover {
+    .btn-compute:hover {
       filter: brightness(1.1);
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
     }
 
-    /* Prediction Result Panel */
-    .result-card {
+    /* Output Section */
+    .output-column {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 18px;
     }
-    .result-hero {
-      background: rgba(0,0,0,0.25);
+
+    /* Score Card Hero */
+    .score-hero-card {
+      background: rgba(0,0,0,0.3);
       border: 1px solid var(--panel-border);
       border-radius: 16px;
       padding: 24px;
       display: grid;
-      grid-template-columns: 180px 1fr;
+      grid-template-columns: 200px 1fr;
       gap: 24px;
       align-items: center;
     }
-    @media (max-width: 600px) { .result-hero { grid-template-columns: 1fr; text-align: center; } }
+    @media (max-width: 700px) { .score-hero-card { grid-template-columns: 1fr; text-align: center; } }
 
-    .gauge-container {
-      width: 160px;
-      height: 160px;
+    .score-circle-wrap {
+      width: 170px;
+      height: 170px;
       margin: 0 auto;
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    .gauge-circle {
-      transform: rotate(-90deg);
-      width: 160px;
-      height: 160px;
-    }
-    .gauge-bg {
+    .score-svg { width: 170px; height: 170px; transform: rotate(-90deg); }
+    .score-bg-circle { fill: none; stroke: #1e293b; stroke-width: 12; }
+    .score-progress-circle {
       fill: none;
-      stroke: #1e293b;
-      stroke-width: 12;
-    }
-    .gauge-meter {
-      fill: none;
-      stroke: var(--accent-rose);
+      stroke: var(--accent-emerald);
       stroke-width: 12;
       stroke-linecap: round;
       stroke-dasharray: 440;
       stroke-dashoffset: 440;
       transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.3s ease;
     }
-    .gauge-center {
-      position: absolute;
-      text-align: center;
-    }
-    .gauge-val {
-      font-size: 2.1rem;
-      font-weight: 800;
-      font-family: var(--font-mono);
-      line-height: 1;
-      color: #fff;
-    }
-    .gauge-label {
-      font-size: 0.72rem;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      font-weight: 700;
-      margin-top: 4px;
-    }
+    .score-inner { position: absolute; text-align: center; }
+    .score-num { font-size: 2.3rem; font-weight: 900; font-family: var(--font-mono); color: #fff; line-height: 1; }
+    .score-den { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; margin-top: 4px; }
 
-    .outcome-details h3 {
-      font-size: 1.45rem;
-      font-weight: 800;
-      margin-bottom: 6px;
-      letter-spacing: -0.01em;
-    }
-    .outcome-status-badge {
+    .score-meta-panel { display: flex; flex-direction: column; gap: 8px; }
+    .status-pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 5px 14px;
+      padding: 4px 12px;
       border-radius: 20px;
-      font-size: 0.8rem;
+      font-size: 0.76rem;
       font-weight: 700;
       text-transform: uppercase;
-      margin-bottom: 12px;
+      width: fit-content;
     }
-    .badge-safe {
-      background: rgba(16, 185, 129, 0.15);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-    .badge-risk {
-      background: rgba(244, 63, 94, 0.15);
-      color: #fb7185;
-      border: 1px solid rgba(244, 63, 94, 0.3);
-    }
-    .outcome-desc {
-      color: var(--text-muted);
-      font-size: 0.88rem;
-      margin-bottom: 14px;
-    }
+    .pill-safe { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .pill-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .pill-danger { background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
 
-    .diagnostic-tags {
+    .score-heading { font-size: 1.4rem; font-weight: 800; color: #fff; }
+    .score-desc { font-size: 0.84rem; color: var(--text-muted); }
+
+    .target-box {
+      margin-top: 8px;
+      background: rgba(255,255,255,0.03);
+      border: 1px dashed var(--panel-border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.82rem;
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+      align-items: center;
+      gap: 10px;
     }
-    .diag-tag {
-      font-size: 0.76rem;
+    .target-highlight { color: #38bdf8; font-weight: 700; font-family: var(--font-mono); }
+
+    /* Diagnostic Badges */
+    .tags-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .alert-tag {
+      font-size: 0.74rem;
       font-weight: 600;
-      padding: 4px 10px;
+      padding: 3px 9px;
       border-radius: 6px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--panel-border);
-      color: #e2e8f0;
       display: inline-flex;
       align-items: center;
       gap: 5px;
     }
-    .diag-tag.alert {
-      background: rgba(244, 63, 94, 0.12);
-      border-color: rgba(244, 63, 94, 0.3);
-      color: #fda4af;
-    }
-    .diag-tag.warning {
-      background: rgba(245, 158, 11, 0.12);
-      border-color: rgba(245, 158, 11, 0.3);
-      color: #fcd34d;
-    }
-    .diag-tag.success {
-      background: rgba(16, 185, 129, 0.12);
-      border-color: rgba(16, 185, 129, 0.3);
-      color: #6ee7b7;
-    }
+    .tag-red { background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.3); color: #fda4af; }
+    .tag-yellow { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fcd34d; }
+    .tag-green { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #6ee7b7; }
 
-    /* Prescriptive Interventions */
-    .intervention-box {
-      background: rgba(139, 92, 246, 0.05);
-      border: 1px solid rgba(139, 92, 246, 0.2);
-      border-radius: 14px;
-      padding: 18px 20px;
+    /* Remedial Action Plan */
+    .remedial-box {
+      background: rgba(99, 102, 241, 0.05);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 12px;
+      padding: 16px 20px;
     }
-    .intervention-title {
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: #c084fc;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-    .intervention-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .intervention-item {
-      font-size: 0.84rem;
-      color: #cbd5e1;
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-    }
-    .intervention-item span.bullet {
-      background: #8b5cf6;
+    .remedial-title { font-size: 0.86rem; font-weight: 700; color: #a5b4fc; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .remedial-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .remedial-item { font-size: 0.82rem; color: #cbd5e1; display: flex; align-items: flex-start; gap: 8px; }
+    .remedial-item span.num {
+      background: var(--accent);
       color: #fff;
       font-size: 0.65rem;
-      width: 18px;
-      height: 18px;
+      font-weight: 700;
+      width: 17px; height: 17px;
       border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
       margin-top: 2px;
-      font-weight: 700;
     }
 
-    /* Radar Chart Container */
-    .sim-charts-row {
+    /* Score Breakdown Charts */
+    .pred-charts-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 16px;
     }
-    @media (max-width: 800px) { .sim-charts-row { grid-template-columns: 1fr; } }
-    .chart-panel {
+    @media (max-width: 800px) { .pred-charts-grid { grid-template-columns: 1fr; } }
+    .chart-box-mini {
       background: rgba(0,0,0,0.2);
       border: 1px solid var(--panel-border);
-      border-radius: 14px;
-      padding: 16px;
-      height: 290px;
-      position: relative;
-    }
-    .chart-panel h4 {
-      font-size: 0.84rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    /* Tab 2: Analytics Grid */
-    .analytics-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 24px;
-    }
-    @media (max-width: 900px) { .analytics-grid { grid-template-columns: 1fr; } }
-
-    .analytics-box {
-      background: var(--panel);
-      border: 1px solid var(--panel-border);
-      border-radius: 18px;
-      padding: 22px;
-      min-height: 340px;
-    }
-    .analytics-box h3 {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 6px;
-    }
-    .analytics-box p {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-    }
-    .analytics-canvas-wrap {
+      border-radius: 12px;
+      padding: 14px;
       height: 250px;
-      position: relative;
     }
+    .chart-box-mini h4 { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
 
-    /* Confusion Matrix Box */
-    .cm-grid {
-      display: grid;
-      grid-template-columns: 80px 1fr 1fr;
-      gap: 8px;
-      text-align: center;
-      margin-top: 15px;
-      font-family: var(--font-mono);
-    }
-    .cm-header {
-      font-size: 0.74rem;
-      font-weight: 700;
-      color: var(--text-dim);
-      padding: 8px;
-      text-transform: uppercase;
-    }
-    .cm-cell {
-      padding: 16px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--panel-border);
-    }
-    .cm-cell.tn { background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.3); }
-    .cm-cell.tp { background: rgba(139, 92, 246, 0.15); border-color: rgba(139, 92, 246, 0.3); }
-    .cm-cell.fn { background: rgba(244, 63, 94, 0.1); border-color: rgba(244, 63, 94, 0.25); }
-    .cm-cell.fp { background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.25); }
-    .cm-num { font-size: 1.4rem; font-weight: 800; color: #fff; }
-    .cm-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; }
-
-    /* Tab 3: Dataset Table Browser */
-    .dataset-controls {
+    /* Tab 2: Batch Class Table */
+    .batch-controls {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -698,123 +511,108 @@
       margin-bottom: 16px;
       flex-wrap: wrap;
     }
-    .search-input-wrap {
+    .search-box {
       display: flex;
       align-items: center;
       background: var(--bg-elevated);
       border: 1px solid var(--panel-border);
-      border-radius: 10px;
-      padding: 8px 14px;
-      gap: 10px;
+      border-radius: 8px;
+      padding: 7px 12px;
+      gap: 8px;
       width: 280px;
     }
-    .search-input-wrap input {
+    .search-box input {
       background: transparent;
       border: none;
       outline: none;
       color: #fff;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       width: 100%;
     }
-    .filter-pills { display: flex; gap: 8px; }
-    .filter-btn {
-      padding: 6px 14px;
-      border-radius: 8px;
+    .filter-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-filter {
+      padding: 5px 12px;
+      border-radius: 6px;
       border: 1px solid var(--panel-border);
       background: transparent;
       color: var(--text-muted);
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 600;
       cursor: pointer;
     }
-    .filter-btn.active {
-      background: rgba(139, 92, 246, 0.2);
+    .btn-filter.active {
+      background: rgba(99, 102, 241, 0.2);
       border-color: var(--accent);
-      color: #c084fc;
+      color: #a5b4fc;
     }
 
-    .table-container {
+    .table-wrap {
       overflow-x: auto;
-      border-radius: 12px;
+      border-radius: 10px;
       border: 1px solid var(--panel-border);
-      background: rgba(0,0,0,0.2);
+      background: rgba(0,0,0,0.25);
     }
-    table {
+    table.data-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       text-align: left;
     }
-    th {
-      padding: 12px 16px;
-      background: #111a2e;
+    table.data-table th {
+      padding: 10px 14px;
+      background: #0f192d;
       color: var(--text-muted);
       font-weight: 700;
-      font-size: 0.74rem;
+      font-size: 0.72rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       border-bottom: 1px solid var(--panel-border);
     }
-    td {
-      padding: 12px 16px;
+    table.data-table td {
+      padding: 10px 14px;
       border-bottom: 1px solid rgba(255,255,255,0.04);
       color: #e2e8f0;
     }
-    tr:hover td {
+    table.data-table tr:hover td {
       background: rgba(255,255,255,0.02);
     }
-    .mono { font-family: var(--font-mono); }
-    .btn-table-load {
-      padding: 4px 10px;
-      border-radius: 6px;
-      border: 1px solid rgba(139, 92, 246, 0.4);
-      background: rgba(139, 92, 246, 0.15);
-      color: #c084fc;
-      font-size: 0.75rem;
+    .font-mono { font-family: var(--font-mono); }
+
+    .btn-load-row {
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      font-size: 0.72rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.15s ease;
     }
-    .btn-table-load:hover {
-      background: rgba(139, 92, 246, 0.35);
-      color: #fff;
-    }
+    .btn-load-row:hover { background: rgba(99, 102, 241, 0.35); color: #fff; }
 
-    .pagination-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 16px;
-      font-size: 0.82rem;
-      color: var(--text-muted);
+    /* Tab 3: Department Analytics Grid */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
     }
-    .pagination-btns { display: flex; gap: 8px; }
-    .page-nav-btn {
-      padding: 6px 14px;
-      border-radius: 8px;
+    @media (max-width: 900px) { .analytics-grid { grid-template-columns: 1fr; } }
+    .analytics-panel {
+      background: var(--panel);
       border: 1px solid var(--panel-border);
-      background: var(--bg-elevated);
-      color: #fff;
-      font-size: 0.8rem;
-      cursor: pointer;
-      font-weight: 600;
+      border-radius: 14px;
+      padding: 20px;
+      min-height: 320px;
     }
-    .page-nav-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
+    .analytics-panel h3 { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .analytics-panel p { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 14px; }
+    .chart-container-lg { height: 230px; position: relative; }
 
-    /* Tab 4: Audit Stream */
-    .audit-header-actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    /* Diagnostic Modal */
-    .modal-overlay {
+    /* Tab 4: Formal Parent / Remedial Notice Modal */
+    .modal-backdrop {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.75);
+      background: rgba(0,0,0,0.8);
       backdrop-filter: blur(8px);
       display: none;
       align-items: center;
@@ -822,330 +620,379 @@
       z-index: 1000;
       padding: 20px;
     }
-    .modal-overlay.active { display: flex; }
-    .report-paper {
+    .modal-backdrop.active { display: flex; }
+    .notice-paper {
       background: #0f172a;
       border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 16px;
+      border-radius: 14px;
       max-width: 700px;
       width: 100%;
       max-height: 90vh;
       overflow-y: auto;
-      padding: 36px;
-      box-shadow: 0 25px 60px -15px rgba(0,0,0,0.8);
+      padding: 32px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8);
       position: relative;
     }
-    .report-close {
+    .notice-close {
       position: absolute;
-      top: 20px; right: 20px;
+      top: 16px; right: 16px;
       background: rgba(255,255,255,0.1);
       border: none;
       color: #fff;
-      width: 32px; height: 32px;
+      width: 30px; height: 30px;
       border-radius: 50%;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 14px;
     }
-    .report-header {
+    .notice-header {
       border-bottom: 2px solid rgba(255,255,255,0.1);
-      padding-bottom: 18px;
-      margin-bottom: 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      text-align: center;
     }
-    .report-title h2 { font-size: 1.3rem; font-weight: 800; color: #fff; }
-    .report-title p { font-size: 0.8rem; color: var(--text-muted); }
-    .report-grid {
+    .notice-header h2 { font-size: 1.25rem; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.05em; }
+    .notice-header p { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+    
+    .notice-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 20px;
+      gap: 12px;
+      margin-bottom: 18px;
     }
-    .report-field {
+    .notice-cell {
       background: rgba(255,255,255,0.03);
-      padding: 10px 14px;
-      border-radius: 8px;
+      padding: 8px 12px;
+      border-radius: 6px;
     }
-    .report-field label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; display: block; }
-    .report-field value { font-size: 0.95rem; font-weight: 700; color: #fff; font-family: var(--font-mono); }
+    .notice-cell label { font-size: 0.68rem; text-transform: uppercase; font-weight: 700; color: var(--text-dim); display: block; }
+    .notice-cell val { font-size: 0.88rem; font-weight: 700; color: #fff; font-family: var(--font-mono); }
 
-    /* Footer */
-    footer {
-      margin-top: 36px;
-      padding-top: 20px;
+    .notice-body { font-size: 0.84rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 20px; }
+    .notice-signature {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 28px;
+      padding-top: 16px;
+      border-top: 1px dashed rgba(255,255,255,0.1);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    footer.portal-footer {
+      margin-top: 28px;
+      padding-top: 16px;
       border-top: 1px solid var(--panel-border);
       display: flex;
       justify-content: space-between;
       align-items: center;
       color: var(--text-dim);
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
     }
     footer a { color: var(--accent-cyan); text-decoration: none; }
     footer a:hover { text-decoration: underline; }
 
-    /* Print optimization for reports */
     @media print {
       body * { visibility: hidden; }
-      .report-paper, .report-paper * { visibility: visible; }
-      .report-paper {
+      .notice-paper, .notice-paper * { visibility: visible; }
+      .notice-paper {
         position: absolute;
-        left: 0; top: 0;
-        width: 100%;
+        left: 0; top: 0; width: 100%;
         background: #fff !important;
         color: #000 !important;
         box-shadow: none;
         border: none;
       }
-      .report-close { display: none; }
+      .notice-close { display: none; }
+      .notice-cell { background: #f1f5f9 !important; color: #000 !important; }
+      .notice-cell val { color: #000 !important; }
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <!-- Top Navigation Header -->
-    <header>
-      <div class="brand-wrap">
-        <div class="brand-icon">🎓</div>
-        <div class="brand-text">
-          <h1>Student Performance & Anomaly Engine</h1>
-          <p>
-            <span class="status-dot"></span>
-            <span>ML Classifier Active</span>
+  <div class="app-container">
+    <!-- Top University ERP Header -->
+    <header class="portal-header">
+      <div class="brand-section">
+        <div class="uni-emblem">🏛️</div>
+        <div class="brand-meta">
+          <h1>CampusScore AI • Faculty Academic Portal</h1>
+          <div class="brand-sub">
+            <span class="faculty-badge">Academic Year 2026-27</span>
             <span>•</span>
-            <span>Random Forest & Gradient Boosting (92.5% Test Accuracy)</span>
-          </p>
+            <span>Dept of Computer Science & Engineering (Semester V)</span>
+            <span>•</span>
+            <span style="color: var(--accent-emerald);">● Portal Online</span>
+          </div>
         </div>
       </div>
-      <div class="nav-actions">
-        <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FEshanth1727%2Fstudent-performance-prediction" target="_blank" class="btn-action btn-vercel">
-          ▲ Deploy to Vercel
-        </a>
-        <a href="https://github.com/Eshanth1727/student-performance-prediction" target="_blank" class="btn-action btn-ghost">
+      <div class="header-actions">
+        <button class="btn btn-primary" onclick="openNoticeModal()">
+          ✉️ Generate Remedial Notice
+        </button>
+        <button class="btn btn-ghost" onclick="exportWeakStudentsCSV()">
+          📥 Export Weak Students
+        </button>
+        <a href="https://github.com/Eshanth1727/student-performance-prediction" target="_blank" class="btn btn-ghost">
           🐙 GitHub Repo
         </a>
-        <button class="btn-action btn-primary" onclick="openReportModal()">
-          📄 Export Report
-        </button>
       </div>
     </header>
 
     <!-- Executive KPI Row -->
-    <div class="kpi-grid">
-      <div class="kpi-card" style="--kpi-color: var(--accent-emerald);">
-        <div class="kpi-header">
-          <span class="kpi-title">Model Accuracy</span>
-          <span class="kpi-icon">🎯</span>
-        </div>
-        <div class="kpi-value" id="kpiAccuracy">92.5%</div>
-        <div class="kpi-sub tag-emerald">
-          <span>✓ Exceeds 85% Benchmark (+7.5%)</span>
-        </div>
-      </div>
-
-      <div class="kpi-card" style="--kpi-color: var(--accent-cyan);">
-        <div class="kpi-header">
-          <span class="kpi-title">ROC-AUC Metric</span>
-          <span class="kpi-icon">📈</span>
-        </div>
-        <div class="kpi-value" id="kpiRocAuc">97.6%</div>
-        <div class="kpi-sub tag-cyan">
-          <span>High Predictive Discrimination</span>
-        </div>
-      </div>
-
-      <div class="kpi-card" style="--kpi-color: var(--accent);">
-        <div class="kpi-header">
-          <span class="kpi-title">Validated Dataset</span>
+    <div class="kpi-row">
+      <div class="kpi-card" style="--card-accent: var(--accent-cyan);">
+        <div class="kpi-top">
+          <span class="kpi-label">Class Strength</span>
           <span class="kpi-icon">👥</span>
         </div>
-        <div class="kpi-value" id="kpiDatasetCount">1,000</div>
-        <div class="kpi-sub tag-purple">
-          <span>Multi-Dimensional Student Records</span>
+        <div class="kpi-val" id="kpiClassStrength">45</div>
+        <div class="kpi-note" style="color: var(--accent-cyan);">
+          <span>Enrolled Students (Section A)</span>
         </div>
       </div>
 
-      <div class="kpi-card" style="--kpi-color: var(--accent-amber);">
-        <div class="kpi-header">
-          <span class="kpi-title">Audit Engine</span>
-          <span class="kpi-icon">🛡️</span>
+      <div class="kpi-card" style="--card-accent: var(--accent-emerald);">
+        <div class="kpi-top">
+          <span class="kpi-label">Projected Class Mean</span>
+          <span class="kpi-icon">📈</span>
         </div>
-        <div class="kpi-value" style="font-size: 1.55rem; line-height: 1.5;">SQLite Backend</div>
-        <div class="kpi-sub tag-amber">
-          <span>Real-Time Anomaly Stream</span>
+        <div class="kpi-val" id="kpiClassMean">68.5</div>
+        <div class="kpi-note" style="color: var(--accent-emerald);">
+          <span>Predicted Final Exam Average (/100)</span>
+        </div>
+      </div>
+
+      <div class="kpi-card" style="--card-accent: var(--accent-rose);">
+        <div class="kpi-top">
+          <span class="kpi-label">Weak / At-Risk Students</span>
+          <span class="kpi-icon">⚠️</span>
+        </div>
+        <div class="kpi-val" style="color: #fb7185;" id="kpiWeakCount">8</div>
+        <div class="kpi-note" style="color: #fb7185;">
+          <span>Predicted Final Score &lt; 45 (Remedial Action)</span>
+        </div>
+      </div>
+
+      <div class="kpi-card" style="--card-accent: var(--accent-amber);">
+        <div class="kpi-top">
+          <span class="kpi-label">Attendance Shortage (&lt;75%)</span>
+          <span class="kpi-icon">🚨</span>
+        </div>
+        <div class="kpi-val" style="color: #fcd34d;" id="kpiDetentionCount">6</div>
+        <div class="kpi-note" style="color: #fcd34d;">
+          <span>University Detention Danger List</span>
         </div>
       </div>
     </div>
 
     <!-- Navigation Tabs -->
-    <div class="tabs-nav">
-      <button class="tab-btn active" onclick="switchTab('simulator')">
-        <span>🔮</span> Risk Simulator & What-If
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchPortalTab('predictor')">
+        <span>🔮</span> Student Future Score Predictor
       </button>
-      <button class="tab-btn" onclick="switchTab('analytics')">
-        <span>📊</span> Model Analytics & ROC
+      <button class="nav-tab" onclick="switchPortalTab('roster')">
+        <span>👥</span> Class Roster & Weak Student Finder
       </button>
-      <button class="tab-btn" onclick="switchTab('database')">
-        <span>🗄️</span> Student Database (1,000)
-      </button>
-      <button class="tab-btn" onclick="switchTab('audit')">
-        <span>⚡</span> SQLite Audit Stream
+      <button class="nav-tab" onclick="switchPortalTab('analytics')">
+        <span>📊</span> Department Academic Analytics
       </button>
     </div>
 
-    <!-- TAB 1: Risk Simulator -->
-    <div id="tab-simulator" class="tab-pane active">
-      <div class="sim-grid">
-        <!-- Input Form Card -->
-        <div class="card">
-          <div class="card-title">
-            <span>Student Risk Classifier</span>
-            <span style="font-size: 0.78rem; font-weight: 600; color: var(--accent-cyan); background: rgba(6, 182, 212, 0.1); padding: 3px 10px; border-radius: 12px;">Real-Time Inference</span>
+    <!-- TAB 1: Student Future Score Predictor -->
+    <div id="tab-predictor" class="tab-content active">
+      <div class="predictor-layout">
+        <!-- Input Form -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span>Student Academic Input Form</span>
+              <span class="val-badge" style="color: #a5b4fc;">Faculty Mode</span>
+            </div>
+            <p class="panel-desc">Enter student's attendance & internal marks to compute projected final score.</p>
           </div>
-          <p class="card-subtitle">Adjust academic parameters to simulate outcome probabilities and trigger anomaly rules.</p>
 
-          <!-- Preset Persona Chips -->
-          <div class="persona-bar">
-            <span class="persona-label">Quick Test Presets (Mentor Demo)</span>
-            <div class="persona-chips">
-              <button class="chip active" onclick="loadPreset('honor')">🌟 Honor Scholar</button>
-              <button class="chip" onclick="loadPreset('burnout')">⚠️ Midterm Burnout</button>
-              <button class="chip" onclick="loadPreset('absent')">🚨 Chronic Absenteeism</button>
-              <button class="chip" onclick="loadPreset('gap')">📉 Concept Gap</button>
+          <!-- Quick Test Presets (For Mentor Evaluation) -->
+          <div class="presets-box">
+            <span class="presets-title">Quick Evaluation Presets (Mentor Demonstration)</span>
+            <div class="presets-btns">
+              <button class="btn-preset" onclick="loadStudentPreset('critical')">🚨 Critical Weak Student</button>
+              <button class="btn-preset" onclick="loadStudentPreset('borderline')">🟡 Borderline Pass</button>
+              <button class="btn-preset" onclick="loadStudentPreset('detention')">⚠️ Attendance Shortage (&lt;75%)</button>
+              <button class="btn-preset" onclick="loadStudentPreset('distinction')">🌟 Distinction Scholar</button>
             </div>
           </div>
 
-          <!-- Feature Sliders -->
-          <div class="slider-group">
-            <div class="slider-header">
-              <span class="slider-title">📅 Lecture Attendance Rate</span>
-              <span class="slider-badge" id="badgeAttendance">85.0%</span>
+          <!-- Student Profile Identifiers -->
+          <div class="form-row">
+            <div class="field-group">
+              <label>Roll Number</label>
+              <input type="text" id="inpRollNo" value="22CS108" oninput="onDataChanged()">
             </div>
-            <input type="range" class="custom-range" id="inputAttendance" min="40" max="100" step="0.5" value="85" oninput="onSliderChange()">
-            <div class="range-limits"><span>40% (Severe Risk)</span><span>100% (Perfect)</span></div>
+            <div class="field-group">
+              <label>Student Name</label>
+              <input type="text" id="inpName" value="Karan Verma" oninput="onDataChanged()">
+            </div>
           </div>
 
-          <div class="slider-group">
-            <div class="slider-header">
-              <span class="slider-title">📚 Weekly Study Hours</span>
-              <span class="slider-badge" id="badgeStudy">18.0 hrs</span>
+          <div class="form-row">
+            <div class="field-group">
+              <label>Course / Subject</label>
+              <select id="inpSubject" onchange="onDataChanged()">
+                <option value="CS501 - Database Management Systems">CS501 - DBMS</option>
+                <option value="CS502 - Operating Systems">CS502 - Operating Systems</option>
+                <option value="CS503 - Computer Networks">CS503 - Computer Networks</option>
+                <option value="CS504 - Machine Learning">CS504 - Machine Learning</option>
+              </select>
             </div>
-            <input type="range" class="custom-range" id="inputStudy" min="1" max="40" step="0.5" value="18" oninput="onSliderChange()">
-            <div class="range-limits"><span>1 hr/wk</span><span>40 hrs/wk</span></div>
+            <div class="field-group">
+              <label>Previous Semester CGPA</label>
+              <input type="text" id="inpPriorCGPA" value="5.80" oninput="onDataChanged()">
+            </div>
           </div>
 
-          <div class="slider-group">
-            <div class="slider-header">
-              <span class="slider-title">🎖️ Prior Semester GPA</span>
-              <span class="slider-badge" id="badgeGPA">3.20</span>
+          <!-- Sliders -->
+          <div class="field-group">
+            <label>
+              <span>📅 Class Attendance Rate</span>
+              <span class="val-badge" id="badgeAttendance">68.0%</span>
+            </label>
+            <div class="range-wrap">
+              <input type="range" class="range-input" id="inpAttendance" min="40" max="100" step="0.5" value="68" oninput="onDataChanged()">
+              <div class="range-meta">
+                <span>40% (Detained)</span>
+                <span style="color: #f87171;">75% (Uni Cutoff)</span>
+                <span>100% (Full)</span>
+              </div>
             </div>
-            <input type="range" class="custom-range" id="inputGPA" min="1.0" max="4.0" step="0.05" value="3.2" oninput="onSliderChange()">
-            <div class="range-limits"><span>1.00</span><span>4.00 (Max)</span></div>
           </div>
 
-          <div class="slider-group">
-            <div class="slider-header">
-              <span class="slider-title">📝 Assignment Completion</span>
-              <span class="slider-badge" id="badgeAssignments">82.0%</span>
+          <div class="field-group">
+            <label>
+              <span>📝 Internal Assessment 1 (IA-1) [Max: 30]</span>
+              <span class="val-badge" id="badgeIA1">13.0 / 30</span>
+            </label>
+            <div class="range-wrap">
+              <input type="range" class="range-input" id="inpIA1" min="0" max="30" step="0.5" value="13" oninput="onDataChanged()">
+              <div class="range-meta"><span>0</span><span>12 (Pass)</span><span>30</span></div>
             </div>
-            <input type="range" class="custom-range" id="inputAssignments" min="30" max="100" step="1" value="82" oninput="onSliderChange()">
-            <div class="range-limits"><span>30%</span><span>100%</span></div>
           </div>
 
-          <div class="slider-group">
-            <div class="slider-header">
-              <span class="slider-title">🎯 Midterm Exam Score</span>
-              <span class="slider-badge" id="badgeMidterm">78.0%</span>
+          <div class="field-group">
+            <label>
+              <span>📝 Internal Assessment 2 (IA-2) [Max: 30]</span>
+              <span class="val-badge" id="badgeIA2">10.0 / 30</span>
+            </label>
+            <div class="range-wrap">
+              <input type="range" class="range-input" id="inpIA2" min="0" max="30" step="0.5" value="10" oninput="onDataChanged()">
+              <div class="range-meta"><span>0</span><span>12 (Pass)</span><span>30</span></div>
             </div>
-            <input type="range" class="custom-range" id="inputMidterm" min="30" max="100" step="1" value="78" oninput="onSliderChange()">
-            <div class="range-limits"><span>30% (Fail)</span><span>100%</span></div>
           </div>
 
-          <div class="slider-group">
-            <div class="slider-header">
-              <span class="slider-title">🌙 Daily Sleep Duration</span>
-              <span class="slider-badge" id="badgeSleep">7.0 hrs</span>
+          <div class="field-group">
+            <label>
+              <span>🔬 Assignment & Lab Completion</span>
+              <span class="val-badge" id="badgeLabs">62%</span>
+            </label>
+            <div class="range-wrap">
+              <input type="range" class="range-input" id="inpLabs" min="30" max="100" step="1" value="62" oninput="onDataChanged()">
+              <div class="range-meta"><span>30%</span><span>100%</span></div>
             </div>
-            <input type="range" class="custom-range" id="inputSleep" min="3.5" max="10.0" step="0.2" value="7.0" oninput="onSliderChange()">
-            <div class="range-limits"><span>3.5 hrs (Sleep Deprivation)</span><span>10 hrs</span></div>
           </div>
 
-          <button class="btn-run-pred" onclick="runMLPrediction(true)">
-            <span>⚡</span> Compute Machine Learning Prediction
+          <div class="field-group">
+            <label>
+              <span>📚 Weekly Self-Study Hours</span>
+              <span class="val-badge" id="badgeStudy">6 hrs</span>
+            </label>
+            <div class="range-wrap">
+              <input type="range" class="range-input" id="inpStudy" min="1" max="35" step="1" value="6" oninput="onDataChanged()">
+              <div class="range-meta"><span>1 hr</span><span>35 hrs</span></div>
+            </div>
+          </div>
+
+          <button class="btn-compute" onclick="computeFutureScore(true)">
+            <span>⚡</span> Compute Future Final Score & Diagnostic
           </button>
         </div>
 
-        <!-- Output Prediction Panel -->
-        <div class="result-card">
-          <!-- Hero Output -->
-          <div class="result-hero">
-            <!-- Radial Gauge -->
-            <div class="gauge-container">
-              <svg class="gauge-circle" viewBox="0 0 160 160">
-                <circle class="gauge-bg" cx="80" cy="80" r="70"></circle>
-                <circle class="gauge-meter" id="riskGauge" cx="80" cy="80" r="70"></circle>
+        <!-- Output Dashboard -->
+        <div class="output-column">
+          <!-- Hero Future Score Card -->
+          <div class="score-hero-card">
+            <div class="score-circle-wrap">
+              <svg class="score-svg" viewBox="0 0 170 170">
+                <circle class="score-bg-circle" cx="85" cy="85" r="70"></circle>
+                <circle class="score-progress-circle" id="scoreMeter" cx="85" cy="85" r="70"></circle>
               </svg>
-              <div class="gauge-center">
-                <div class="gauge-val" id="riskValText">18.5%</div>
-                <div class="gauge-label">Risk Probability</div>
+              <div class="score-inner">
+                <div class="score-num" id="predFinalScore">41.8</div>
+                <div class="score-den">out of 100</div>
               </div>
             </div>
 
-            <!-- Outcome Text -->
-            <div class="outcome-details">
-              <span class="outcome-status-badge badge-safe" id="statusBadge">
-                <span>●</span> On-Track Student
-              </span>
-              <h3 id="outcomeTitle">Low Academic Risk Probability</h3>
-              <p class="outcome-desc" id="outcomeDescription">
-                Predictive indicators signify solid academic continuity. Study routine and attendance demonstrate consistent engagement.
+            <div class="score-meta-panel">
+              <div class="status-pill pill-danger" id="predStatusPill">
+                <span>●</span> Critical Weak Student
+              </div>
+              <div class="score-heading" id="predGradeText">Grade: Pass / Backlog Danger (D)</div>
+              <p class="score-desc" id="predExplanation">
+                Student exhibits sharp performance decline between Internal-1 and Internal-2. Attendance is below the mandatory 75% university eligibility criteria.
               </p>
-              <div class="diagnostic-tags" id="anomalyTagsContainer">
-                <span class="diag-tag success">✓ Balanced Study-Sleep Ratio</span>
-                <span class="diag-tag success">✓ Attendance Target Met</span>
+
+              <!-- Target Passing Marks Required -->
+              <div class="target-box">
+                <span>🎯</span>
+                <div>
+                  <span>Target needed in Final Exam to pass without backlog: </span>
+                  <span class="target-highlight" id="targetExamScore">45 / 100</span>
+                </div>
+              </div>
+
+              <!-- Diagnostic Badges -->
+              <div class="tags-row" id="diagBadgesContainer">
+                <span class="alert-tag tag-red">🚨 Attendance Shortage: 68% (&lt;75%)</span>
+                <span class="alert-tag tag-yellow">📉 Internal-2 Dropped by 23%</span>
               </div>
             </div>
           </div>
 
-          <!-- Prescriptive Recommendations -->
-          <div class="intervention-box">
-            <div class="intervention-title">
-              <span>💡 Prescriptive Recommendation Plan</span>
+          <!-- Prescribed Remedial Action Plan -->
+          <div class="remedial-box">
+            <div class="remedial-title">
+              <span>📋 Faculty Prescribed Remedial Action Plan</span>
             </div>
-            <ul class="intervention-list" id="recommendationList">
-              <li class="intervention-item">
-                <span class="bullet">1</span>
-                <span>Maintain current study trajectory and participate in peer mentor circles.</span>
+            <ul class="remedial-list" id="remedialList">
+              <li class="remedial-item">
+                <span class="num">1</span>
+                <span>Mandatory enrollment in 12-hour Department Remedial Classes (Modules 3 & 4).</span>
               </li>
-              <li class="intervention-item">
-                <span class="bullet">2</span>
-                <span>Encourage participation in advanced concept workshops and honors seminars.</span>
+              <li class="remedial-item">
+                <span class="num">2</span>
+                <span>Issue Official Attendance Shortage Warning Notice to parents.</span>
+              </li>
+              <li class="remedial-item">
+                <span class="num">3</span>
+                <span>Assign Peer Mentor (High Performing Senior) for lab concept coaching.</span>
               </li>
             </ul>
           </div>
 
-          <!-- Explainability Radar & Feature Impact -->
-          <div class="sim-charts-row">
-            <div class="chart-panel">
-              <h4>
-                <span>Multidimensional Student Radar</span>
-                <span style="color: var(--accent-cyan); font-size: 0.74rem;">vs Cohort Median</span>
-              </h4>
-              <div style="height: 220px; position: relative;">
-                <canvas id="studentRadarChart"></canvas>
+          <!-- Comparison Charts -->
+          <div class="pred-charts-grid">
+            <div class="chart-box-mini">
+              <h4>Internal Assessment Trajectory (IA-1 vs IA-2)</h4>
+              <div style="height: 190px; position: relative;">
+                <canvas id="internalTrajectoryChart"></canvas>
               </div>
             </div>
 
-            <div class="chart-panel">
-              <h4>
-                <span>Local Feature Contribution (SHAP Impact)</span>
-                <span style="color: var(--accent-emerald); font-size: 0.74rem;">Trained Weights</span>
-              </h4>
-              <div style="height: 220px; position: relative;">
-                <canvas id="localContributionChart"></canvas>
+            <div class="chart-box-mini">
+              <h4>Component Weight Contribution to Final Score</h4>
+              <div style="height: 190px; position: relative;">
+                <canvas id="weightContributionChart"></canvas>
               </div>
             </div>
           </div>
@@ -1153,147 +1000,47 @@
       </div>
     </div>
 
-    <!-- TAB 2: Model Analytics -->
-    <div id="tab-analytics" class="tab-pane">
-      <div class="analytics-grid">
-        <!-- Global Feature Importances -->
-        <div class="analytics-box">
-          <h3>Random Forest Global Feature Importances</h3>
-          <p>Relative weight calculated from Gini impurity reduction across 100 ensemble decision trees.</p>
-          <div class="analytics-canvas-wrap">
-            <canvas id="featureChart"></canvas>
+    <!-- TAB 2: Class Roster & Weak Student Finder -->
+    <div id="tab-roster" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>Class Performance Roster (CSE 5th Sem - Section A)</span>
+            <span class="val-badge" id="rosterCountBadge">45 Students Evaluated</span>
           </div>
+          <p class="panel-desc">Quickly isolate weak students with projected final score &lt; 45 or attendance shortage &lt; 75%. Click "Load" on any row to evaluate them.</p>
         </div>
 
-        <!-- Cohort Risk Distribution -->
-        <div class="analytics-box">
-          <h3>Cohort Outcome Distribution (N=1,000)</h3>
-          <p>Distribution of On-Track vs At-Risk outcomes in synthesized training and validation cohorts.</p>
-          <div class="analytics-canvas-wrap">
-            <canvas id="riskDistChart"></canvas>
-          </div>
-        </div>
-
-        <!-- Interactive ROC Curve -->
-        <div class="analytics-box">
-          <h3>ROC-AUC Performance Curve (AUC = 0.976)</h3>
-          <p>True Positive Rate vs False Positive Rate across classification threshold variations.</p>
-          <div class="analytics-canvas-wrap">
-            <canvas id="rocCurveChart"></canvas>
-          </div>
-        </div>
-
-        <!-- Confusion Matrix & Metrics -->
-        <div class="analytics-box">
-          <h3>Model Evaluation Confusion Matrix (Test Set N=200)</h3>
-          <p>Ensemble performance metrics with stratified 80/20 train-test validation split.</p>
-          <div class="cm-grid">
-            <div></div>
-            <div class="cm-header">Pred: Safe (0)</div>
-            <div class="cm-header">Pred: At-Risk (1)</div>
-
-            <div class="cm-header" style="writing-mode: vertical-rl; transform: rotate(180deg); margin: auto;">Actual Safe</div>
-            <div class="cm-cell tn">
-              <div class="cm-num">151</div>
-              <div class="cm-sub">True Negative (95.6%)</div>
-            </div>
-            <div class="cm-cell fp">
-              <div class="cm-num">7</div>
-              <div class="cm-sub">False Positive (4.4%)</div>
-            </div>
-
-            <div class="cm-header" style="writing-mode: vertical-rl; transform: rotate(180deg); margin: auto;">Actual Risk</div>
-            <div class="cm-cell fn">
-              <div class="cm-num">8</div>
-              <div class="cm-sub">False Negative (19.0%)</div>
-            </div>
-            <div class="cm-cell tp">
-              <div class="cm-num">34</div>
-              <div class="cm-sub">True Positive (81.0%)</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 3: Student Database Browser -->
-    <div id="tab-database" class="tab-pane">
-      <div class="card">
-        <div class="card-title">
-          <span>Student Database Browser (students_data.json & SQLite)</span>
-          <span class="slider-badge" id="recordCountBadge">1,000 Records Loaded</span>
-        </div>
-        <p class="card-subtitle">Search, filter, and inspect verified student profiles. Click "Load into Simulator" to test the ML model on any student.</p>
-
-        <div class="dataset-controls">
-          <div class="search-input-wrap">
+        <div class="batch-controls">
+          <div class="search-box">
             <span>🔍</span>
-            <input type="text" id="dbSearchInput" placeholder="Search by Student ID (e.g. STU-1042)..." oninput="filterDataset()">
+            <input type="text" id="rosterSearch" placeholder="Search Roll No or Student Name..." oninput="filterRoster()">
           </div>
 
-          <div class="filter-pills">
-            <button class="filter-btn active" id="filterAll" onclick="setDbFilter('all')">All Records</button>
-            <button class="filter-btn" id="filterAtRisk" onclick="setDbFilter('risk')">At-Risk Only</button>
-            <button class="filter-btn" id="filterOnTrack" onclick="setDbFilter('safe')">On-Track Only</button>
+          <div class="filter-group">
+            <button class="btn-filter active" id="fAll" onclick="setRosterFilter('all')">All (45)</button>
+            <button class="btn-filter" id="fWeak" onclick="setRosterFilter('weak')" style="color: #fda4af;">🚨 Weak Students (&lt;45)</button>
+            <button class="btn-filter" id="fShortage" onclick="setRosterFilter('shortage')" style="color: #fcd34d;">⚠️ Attendance &lt;75%</button>
+            <button class="btn-filter" id="fDistinction" onclick="setRosterFilter('distinction')" style="color: #86efac;">🌟 Distinction (≥75)</button>
           </div>
         </div>
 
-        <div class="table-container">
-          <table>
+        <div class="table-wrap">
+          <table class="data-table">
             <thead>
               <tr>
-                <th>Student ID</th>
+                <th>Roll Number</th>
+                <th>Student Name</th>
                 <th>Attendance</th>
-                <th>Study Hrs/Wk</th>
-                <th>Prior GPA</th>
-                <th>Assignments</th>
-                <th>Midterm</th>
-                <th>Sleep</th>
+                <th>Prior CGPA</th>
+                <th>IA-1 (/30)</th>
+                <th>IA-2 (/30)</th>
+                <th>Predicted Final (/100)</th>
                 <th>Status</th>
-                <th>Action</th>
+                <th>Faculty Action</th>
               </tr>
             </thead>
-            <tbody id="datasetTableBody">
-              <!-- Dynamically populated -->
-            </tbody>
-          </table>
-        </div>
-
-        <div class="pagination-bar">
-          <span id="pageInfoText">Showing 1-10 of 1,000 students</span>
-          <div class="pagination-btns">
-            <button class="page-nav-btn" id="btnPrevPage" onclick="changePage(-1)" disabled>← Previous</button>
-            <button class="page-nav-btn" id="btnNextPage" onclick="changePage(1)">Next →</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 4: SQLite Audit Stream -->
-    <div id="tab-audit" class="tab-pane">
-      <div class="card">
-        <div class="card-title">
-          <span>SQLite Real-Time Anomaly Audit Stream</span>
-          <div class="audit-header-actions">
-            <button class="btn-action btn-ghost" onclick="exportAuditLogCSV()">📥 Export CSV</button>
-            <button class="btn-action btn-ghost" onclick="clearAuditLogs()">🗑️ Clear Log</button>
-          </div>
-        </div>
-        <p class="card-subtitle">All evaluated inference runs are logged with timestamped anomaly metadata matching `student_audit.db` schema.</p>
-
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Timestamp</th>
-                <th>Student ID</th>
-                <th>Status</th>
-                <th>Risk Prob</th>
-                <th>Anomaly Detected</th>
-                <th>Prescriptive Recommendation</th>
-              </tr>
-            </thead>
-            <tbody id="auditTableBody">
+            <tbody id="rosterTableBody">
               <!-- Dynamically populated -->
             </tbody>
           </table>
@@ -1301,65 +1048,101 @@
       </div>
     </div>
 
-    <!-- Academic Diagnostic Report Modal -->
-    <div class="modal-overlay" id="reportModal" onclick="closeReportModalOnBackdrop(event)">
-      <div class="report-paper">
-        <button class="report-close" onclick="closeReportModal()">✕</button>
-        <div class="report-header">
-          <div class="report-title">
-            <h2>🎓 Academic Performance Diagnostic Report</h2>
-            <p>Generated by Student Risk Classifier & Anomaly Engine</p>
-          </div>
-          <button class="btn-action btn-primary" onclick="window.print()">🖨️ Print / Save PDF</button>
-        </div>
-
-        <div class="report-grid">
-          <div class="report-field">
-            <label>Student Identifier</label>
-            <value id="rptStudentId">STU-8821</value>
-          </div>
-          <div class="report-field">
-            <label>Evaluation Timestamp</label>
-            <value id="rptTimestamp">2026-10-11 15:30:00</value>
-          </div>
-          <div class="report-field">
-            <label>Assessed Risk Probability</label>
-            <value id="rptRiskProb">18.5% (Safe)</value>
-          </div>
-          <div class="report-field">
-            <label>Ensemble Model Accuracy</label>
-            <value>92.5% (Test Split)</value>
+    <!-- TAB 3: Department Academic Analytics -->
+    <div id="tab-analytics" class="tab-content">
+      <div class="analytics-grid">
+        <div class="analytics-panel">
+          <h3>Predicted Class Grade Distribution</h3>
+          <p>Spread of predicted academic outcomes across Section A students.</p>
+          <div class="chart-container-lg">
+            <canvas id="gradeDistChart"></canvas>
           </div>
         </div>
 
-        <div style="margin-bottom: 20px;">
-          <h4 style="font-size: 0.9rem; margin-bottom: 8px; color: #fff;">Academic Feature Metric Snapshot:</h4>
-          <div class="report-grid" id="rptMetricsGrid">
-            <!-- Dynamically populated -->
+        <div class="analytics-panel">
+          <h3>Attendance vs Final Score Correlation</h3>
+          <p>Demonstrates clear impact of attendance adherence on final academic attainment.</p>
+          <div class="chart-container-lg">
+            <canvas id="attVsScoreChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Remedial / Warning Notice Modal (Printable) -->
+    <div class="modal-backdrop" id="noticeModal" onclick="closeNoticeOnBackdrop(event)">
+      <div class="notice-paper">
+        <button class="notice-close" onclick="closeNoticeModal()">✕</button>
+        <div class="notice-header">
+          <h2>🏛️ DEPARTMENT OF COMPUTER SCIENCE & ENGINEERING</h2>
+          <p>ACADEMIC PERFORMANCE & REMEDIAL COACHING NOTIFICATION</p>
+        </div>
+
+        <div class="notice-grid">
+          <div class="notice-cell">
+            <label>Student Roll Number</label>
+            <val id="notRollNo">22CS108</val>
+          </div>
+          <div class="notice-cell">
+            <label>Student Full Name</label>
+            <val id="notName">Karan Verma</val>
+          </div>
+          <div class="notice-cell">
+            <label>Course / Subject</label>
+            <val id="notSubject">CS501 - Database Management Systems</val>
+          </div>
+          <div class="notice-cell">
+            <label>Current Attendance</label>
+            <val id="notAttendance" style="color: #f87171;">68.0% (&lt;75% Shortage)</val>
+          </div>
+          <div class="notice-cell">
+            <label>Internal 1 & 2 Scores</label>
+            <val id="notScores">13 / 30 and 10 / 30</val>
+          </div>
+          <div class="notice-cell">
+            <label>Predicted Final Score</label>
+            <val id="notPredScore" style="color: #fb7185;">41.8 / 100 (At-Risk)</val>
           </div>
         </div>
 
-        <div style="margin-bottom: 20px;">
-          <h4 style="font-size: 0.9rem; margin-bottom: 8px; color: #fff;">Detected Anomalies:</h4>
-          <div class="diagnostic-tags" id="rptAnomalies"></div>
+        <div class="notice-body">
+          <p>
+            Dear Parent / Guardian,
+          </p>
+          <br>
+          <p>
+            This official notification is issued by the Faculty Academic Board. Based on our <strong>Predictive Academic Early Warning System</strong>, your ward exhibits an acute risk of course backlog and semester detention due to an attendance deficit (current: <strong id="notAttBody">68.0%</strong>, minimum required: <strong>75.0%</strong>) and an internal assessment shortfall.
+          </p>
+          <br>
+          <p>
+            <strong>Mandatory Directive:</strong> The student must report for scheduled Department Remedial Classes commencing this Thursday. To clear the subject, the student must attain at least <strong id="notTargetBody">45 marks</strong> in the Semester End Examination.
+          </p>
         </div>
 
-        <div>
-          <h4 style="font-size: 0.9rem; margin-bottom: 8px; color: #fff;">Prescribed Academic Intervention:</h4>
-          <div class="intervention-box" style="margin-top: 6px;">
-            <ul class="intervention-list" id="rptInterventions"></ul>
+        <div class="notice-signature">
+          <div>
+            <strong>Dr. R. K. Sharma</strong><br>
+            Faculty Advisor & Mentor
           </div>
+          <div style="text-align: right;">
+            <strong>Head of Department (HOD)</strong><br>
+            Computer Science & Engineering
+          </div>
+        </div>
+
+        <div style="margin-top: 24px; text-align: right;">
+          <button class="btn btn-primary" onclick="window.print()">🖨️ Print / Save Notice PDF</button>
         </div>
       </div>
     </div>
 
     <!-- Footer -->
-    <footer>
+    <footer class="portal-footer">
       <div>
-        <strong>Student Performance Prediction & Anomaly Engine</strong> • Built by <a href="https://github.com/Eshanth1727" target="_blank">Eshanth Donikena</a>
+        <strong>CampusScore AI • University Student Performance Prediction System</strong> • Developed by <a href="https://github.com/Eshanth1727" target="_blank">Eshanth Donikena</a>
       </div>
       <div>
-        <span>Python 3.11 • Scikit-Learn • Flask REST API • SQLite • Chart.js • Vercel Ready</span>
+        <span>Multiple Linear Regression & Random Forest Model • Flask & SQLite Engine • Vercel Ready</span>
       </div>
     </footer>
   </div>
