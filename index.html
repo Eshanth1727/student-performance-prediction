@@ -3,182 +3,1365 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Performance Prediction & Anomaly Engine | Eshanth Donikena</title>
+  <title>Student Performance Prediction & Anomaly Engine | AI Academic Intelligence</title>
+  <meta name="description" content="Production-ready machine learning system to predict student academic risk, detect learning anomalies, and generate prescriptive interventions. Built with Random Forest, Gradient Boosting, Flask & SQLite.">
+  
+  <!-- Modern Typography & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
   <style>
     :root {
-      --bg: #090d16;
-      --panel: #111827;
-      --border: #1f2937;
+      --bg: #070b14;
+      --bg-elevated: #0d1322;
+      --panel: #111a2e;
+      --panel-hover: #162038;
+      --panel-border: rgba(255, 255, 255, 0.08);
+      --panel-border-focus: rgba(139, 92, 246, 0.4);
       --accent: #8b5cf6;
+      --accent-rgb: 139, 92, 246;
       --accent-cyan: #06b6d4;
       --accent-emerald: #10b981;
       --accent-rose: #f43f5e;
       --accent-amber: #f59e0b;
+      --accent-indigo: #6366f1;
       --text: #f9fafb;
-      --text-sub: #9ca3af;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --glow-purple: 0 0 30px rgba(139, 92, 246, 0.15);
+      --glow-cyan: 0 0 30px rgba(6, 182, 212, 0.15);
+      --glow-emerald: 0 0 30px rgba(16, 185, 129, 0.15);
+      --glow-rose: 0 0 30px rgba(244, 63, 94, 0.15);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
-    body { background-color: var(--bg); color: var(--text); min-height: 100vh; padding: 24px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-main); }
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 15% 10%, rgba(139, 92, 246, 0.1) 0%, transparent 40%),
+        radial-gradient(circle at 85% 20%, rgba(6, 182, 212, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 50% 90%, rgba(99, 102, 241, 0.06) 0%, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+      line-height: 1.5;
+    }
 
-    header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 24px; }
-    .title h1 { font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #c084fc, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .title p { color: var(--text-sub); font-size: 0.9rem; margin-top: 4px; }
-    .links { display: flex; gap: 10px; }
-    .btn-link { background: rgba(139, 92, 246, 0.15); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3); padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; text-decoration: none; }
-    .btn-link:hover { background: rgba(139, 92, 246, 0.3); }
+    .container { max-width: 1440px; margin: 0 auto; }
 
-    .metrics-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
-    .metric-card { background: var(--panel); border: 1px solid var(--border); padding: 20px; border-radius: 14px; text-align: center; }
-    .metric-card h3 { font-size: 0.8rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
-    .metric-card .value { font-size: 2rem; font-weight: 800; color: #fff; }
-    .metric-card .tag { font-size: 0.78rem; color: var(--accent-emerald); font-weight: 600; margin-top: 4px; }
+    /* Top Navigation Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 24px;
+      background: rgba(17, 26, 46, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--panel-border);
+      border-radius: 18px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+    }
 
-    .main-grid { display: grid; grid-template-columns: 380px 1fr; gap: 24px; margin-bottom: 24px; }
-    @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+    .brand-wrap { display: flex; align-items: center; gap: 16px; }
+    .brand-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: var(--glow-purple);
+    }
+    .brand-text h1 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 40%, #c084fc 80%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .brand-text p {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      box-shadow: 0 0 10px var(--accent-emerald);
+      display: inline-block;
+    }
 
-    .predictor-card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
-    .predictor-card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: #e5e7eb; }
-    .form-group { margin-bottom: 14px; }
-    .form-group label { display: flex; justify-content: space-between; font-size: 0.82rem; font-weight: 600; color: var(--text-sub); margin-bottom: 6px; }
-    .form-group input[type="range"] { width: 100%; accent-color: var(--accent); }
-    .btn-predict { width: 100%; background: linear-gradient(135deg, #8b5cf6, #6366f1); color: #fff; border: none; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 0.95rem; cursor: pointer; margin-top: 10px; }
-    .btn-predict:hover { opacity: 0.95; }
+    .nav-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .btn-vercel {
+      background: #000;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .btn-vercel:hover {
+      background: #111;
+      border-color: rgba(255,255,255,0.4);
+      transform: translateY(-1px);
+    }
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border-color: var(--panel-border);
+    }
+    .btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-1px);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-indigo));
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    }
+    .btn-primary:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
 
-    .result-box { margin-top: 20px; padding: 16px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); }
-    .result-box h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; }
-    .status-safe { color: var(--accent-emerald); }
-    .status-risk { color: var(--accent-rose); }
+    /* KPI Highlights */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 1024px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .kpi-grid { grid-template-columns: 1fr; } }
 
-    .dash-section { display: flex; flex-direction: column; gap: 20px; }
-    .charts-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
-    .chart-box { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 20px; height: 320px; }
-    .chart-box h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 14px; color: #e5e7eb; }
+    .kpi-card {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--panel-border-focus);
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--kpi-color, var(--accent)), transparent);
+    }
+    .kpi-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .kpi-title {
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+    .kpi-icon {
+      font-size: 1.1rem;
+      padding: 6px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.04);
+    }
+    .kpi-value {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    .kpi-sub {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tag-emerald { color: var(--accent-emerald); }
+    .tag-cyan { color: var(--accent-cyan); }
+    .tag-purple { color: #c084fc; }
+    .tag-amber { color: var(--accent-amber); }
 
-    .audit-log-card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
-    .audit-log-card h3 { font-size: 1rem; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
-    .db-badge { background: #1f2937; color: var(--accent-cyan); font-size: 0.75rem; padding: 4px 10px; border-radius: 12px; font-weight: 600; }
-    
-    table { width: 100%; border-collapse: collapse; font-size: 0.84rem; text-align: left; }
-    th { padding: 10px; background: #1f2937; color: var(--text-sub); text-transform: uppercase; font-size: 0.7rem; font-weight: 700; }
-    td { padding: 10px; border-bottom: 1px solid var(--border); }
-    .pill { padding: 3px 8px; border-radius: 10px; font-size: 0.74rem; font-weight: 700; }
-    .pill-safe { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
-    .pill-risk { background: rgba(244, 63, 94, 0.2); color: #fca5a5; }
+    /* Tab Controls */
+    .tabs-nav {
+      display: flex;
+      gap: 8px;
+      background: var(--bg-elevated);
+      padding: 6px;
+      border-radius: 14px;
+      border: 1px solid var(--panel-border);
+      margin-bottom: 24px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      flex: 1;
+      min-width: 170px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .tab-btn:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .tab-btn.active {
+      background: var(--panel);
+      color: #fff;
+      border: 1px solid var(--panel-border-focus);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    /* Tab Content Layouts */
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Tab 1: Simulator Grid */
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 1100px) { .sim-grid { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 18px;
+      padding: 24px;
+      position: relative;
+    }
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .card-subtitle {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: -12px;
+      margin-bottom: 20px;
+    }
+
+    /* Preset Persona Chips */
+    .persona-bar {
+      margin-bottom: 22px;
+    }
+    .persona-label {
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+      display: block;
+    }
+    .persona-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--panel-border);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .chip:hover {
+      background: rgba(139, 92, 246, 0.15);
+      border-color: rgba(139, 92, 246, 0.4);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .chip.active {
+      background: rgba(139, 92, 246, 0.25);
+      border-color: var(--accent);
+      color: #c084fc;
+    }
+
+    /* Slider Form Controls */
+    .slider-group {
+      margin-bottom: 18px;
+    }
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .slider-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .slider-badge {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(255,255,255,0.06);
+      padding: 2px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--panel-border);
+    }
+    .custom-range {
+      width: 100%;
+      height: 6px;
+      background: #1e293b;
+      border-radius: 6px;
+      outline: none;
+      -webkit-appearance: none;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    .custom-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #c084fc;
+      border: 2px solid #fff;
+      box-shadow: 0 0 10px rgba(139, 92, 246, 0.6);
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+    .custom-range::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+    .range-limits {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-top: 4px;
+      font-family: var(--font-mono);
+    }
+
+    .btn-run-pred {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #8b5cf6, #4f46e5);
+      color: #fff;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+      transition: all 0.2s ease;
+      margin-top: 24px;
+    }
+    .btn-run-pred:hover {
+      filter: brightness(1.1);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
+    }
+
+    /* Prediction Result Panel */
+    .result-card {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .result-hero {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 24px;
+      align-items: center;
+    }
+    @media (max-width: 600px) { .result-hero { grid-template-columns: 1fr; text-align: center; } }
+
+    .gauge-container {
+      width: 160px;
+      height: 160px;
+      margin: 0 auto;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .gauge-circle {
+      transform: rotate(-90deg);
+      width: 160px;
+      height: 160px;
+    }
+    .gauge-bg {
+      fill: none;
+      stroke: #1e293b;
+      stroke-width: 12;
+    }
+    .gauge-meter {
+      fill: none;
+      stroke: var(--accent-rose);
+      stroke-width: 12;
+      stroke-linecap: round;
+      stroke-dasharray: 440;
+      stroke-dashoffset: 440;
+      transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.3s ease;
+    }
+    .gauge-center {
+      position: absolute;
+      text-align: center;
+    }
+    .gauge-val {
+      font-size: 2.1rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      line-height: 1;
+      color: #fff;
+    }
+    .gauge-label {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .outcome-details h3 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+    .outcome-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .badge-safe {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .badge-risk {
+      background: rgba(244, 63, 94, 0.15);
+      color: #fb7185;
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+    .outcome-desc {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      margin-bottom: 14px;
+    }
+
+    .diagnostic-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .diag-tag {
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--panel-border);
+      color: #e2e8f0;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .diag-tag.alert {
+      background: rgba(244, 63, 94, 0.12);
+      border-color: rgba(244, 63, 94, 0.3);
+      color: #fda4af;
+    }
+    .diag-tag.warning {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.3);
+      color: #fcd34d;
+    }
+    .diag-tag.success {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: #6ee7b7;
+    }
+
+    /* Prescriptive Interventions */
+    .intervention-box {
+      background: rgba(139, 92, 246, 0.05);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      border-radius: 14px;
+      padding: 18px 20px;
+    }
+    .intervention-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #c084fc;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .intervention-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .intervention-item {
+      font-size: 0.84rem;
+      color: #cbd5e1;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .intervention-item span.bullet {
+      background: #8b5cf6;
+      color: #fff;
+      font-size: 0.65rem;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+      font-weight: 700;
+    }
+
+    /* Radar Chart Container */
+    .sim-charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 800px) { .sim-charts-row { grid-template-columns: 1fr; } }
+    .chart-panel {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+      padding: 16px;
+      height: 290px;
+      position: relative;
+    }
+    .chart-panel h4 {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Tab 2: Analytics Grid */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+    @media (max-width: 900px) { .analytics-grid { grid-template-columns: 1fr; } }
+
+    .analytics-box {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 18px;
+      padding: 22px;
+      min-height: 340px;
+    }
+    .analytics-box h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .analytics-box p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .analytics-canvas-wrap {
+      height: 250px;
+      position: relative;
+    }
+
+    /* Confusion Matrix Box */
+    .cm-grid {
+      display: grid;
+      grid-template-columns: 80px 1fr 1fr;
+      gap: 8px;
+      text-align: center;
+      margin-top: 15px;
+      font-family: var(--font-mono);
+    }
+    .cm-header {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      padding: 8px;
+      text-transform: uppercase;
+    }
+    .cm-cell {
+      padding: 16px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--panel-border);
+    }
+    .cm-cell.tn { background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.3); }
+    .cm-cell.tp { background: rgba(139, 92, 246, 0.15); border-color: rgba(139, 92, 246, 0.3); }
+    .cm-cell.fn { background: rgba(244, 63, 94, 0.1); border-color: rgba(244, 63, 94, 0.25); }
+    .cm-cell.fp { background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.25); }
+    .cm-num { font-size: 1.4rem; font-weight: 800; color: #fff; }
+    .cm-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; }
+
+    /* Tab 3: Dataset Table Browser */
+    .dataset-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .search-input-wrap {
+      display: flex;
+      align-items: center;
+      background: var(--bg-elevated);
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 8px 14px;
+      gap: 10px;
+      width: 280px;
+    }
+    .search-input-wrap input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 0.85rem;
+      width: 100%;
+    }
+    .filter-pills { display: flex; gap: 8px; }
+    .filter-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--panel-border);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .filter-btn.active {
+      background: rgba(139, 92, 246, 0.2);
+      border-color: var(--accent);
+      color: #c084fc;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--panel-border);
+      background: rgba(0,0,0,0.2);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+    th {
+      padding: 12px 16px;
+      background: #111a2e;
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--panel-border);
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: #e2e8f0;
+    }
+    tr:hover td {
+      background: rgba(255,255,255,0.02);
+    }
+    .mono { font-family: var(--font-mono); }
+    .btn-table-load {
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      background: rgba(139, 92, 246, 0.15);
+      color: #c084fc;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-table-load:hover {
+      background: rgba(139, 92, 246, 0.35);
+      color: #fff;
+    }
+
+    .pagination-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .pagination-btns { display: flex; gap: 8px; }
+    .page-nav-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--panel-border);
+      background: var(--bg-elevated);
+      color: #fff;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .page-nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Tab 4: Audit Stream */
+    .audit-header-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    /* Diagnostic Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal-overlay.active { display: flex; }
+    .report-paper {
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      max-width: 700px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 36px;
+      box-shadow: 0 25px 60px -15px rgba(0,0,0,0.8);
+      position: relative;
+    }
+    .report-close {
+      position: absolute;
+      top: 20px; right: 20px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: #fff;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .report-header {
+      border-bottom: 2px solid rgba(255,255,255,0.1);
+      padding-bottom: 18px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .report-title h2 { font-size: 1.3rem; font-weight: 800; color: #fff; }
+    .report-title p { font-size: 0.8rem; color: var(--text-muted); }
+    .report-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .report-field {
+      background: rgba(255,255,255,0.03);
+      padding: 10px 14px;
+      border-radius: 8px;
+    }
+    .report-field label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; display: block; }
+    .report-field value { font-size: 0.95rem; font-weight: 700; color: #fff; font-family: var(--font-mono); }
+
+    /* Footer */
+    footer {
+      margin-top: 36px;
+      padding-top: 20px;
+      border-top: 1px solid var(--panel-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    footer a { color: var(--accent-cyan); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* Print optimization for reports */
+    @media print {
+      body * { visibility: hidden; }
+      .report-paper, .report-paper * { visibility: visible; }
+      .report-paper {
+        position: absolute;
+        left: 0; top: 0;
+        width: 100%;
+        background: #fff !important;
+        color: #000 !important;
+        box-shadow: none;
+        border: none;
+      }
+      .report-close { display: none; }
+    }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="title">
-      <h1>Student Performance Prediction Engine</h1>
-      <p>Machine Learning Academic Risk Classifier & Real-Time Anomaly Audit System</p>
-    </div>
-    <div class="links">
-      <a href="https://github.com/Eshanth1727/student-performance-prediction" target="_blank" class="btn-link">💻 GitHub Repo</a>
-      <a href="https://github.com/Eshanth1727" target="_blank" class="btn-link">👤 Eshanth Donikena</a>
-    </div>
-  </header>
-
-  <div class="metrics-row">
-    <div class="metric-card">
-      <h3>MODEL ACCURACY</h3>
-      <div class="value">91.8%</div>
-      <div class="tag">✓ Exceeds 85% Requirement</div>
-    </div>
-    <div class="metric-card">
-      <h3>ROC-AUC SCORE</h3>
-      <div class="value">95.5%</div>
-      <div class="tag">High Predictive Discrimination</div>
-    </div>
-    <div class="metric-card">
-      <h3>ML ALGORITHM</h3>
-      <div class="value" style="font-size: 1.4rem; line-height: 2.2rem;">Random Forest & Gradient Boosting</div>
-      <div class="tag">Ensemble Classifier</div>
-    </div>
-    <div class="metric-card">
-      <h3>AUDIT BACKEND</h3>
-      <div class="value" style="font-size: 1.4rem; line-height: 2.2rem;">Flask + SQLite</div>
-      <div class="tag">Real-Time Anomaly Detection</div>
-    </div>
-  </div>
-
-  <div class="main-grid">
-    <!-- Predictor Tool -->
-    <div class="predictor-card">
-      <h2>🔮 Student Risk Predictor</h2>
-      
-      <div class="form-group">
-        <label>Lecture Attendance: <span id="valAttendance">75%</span></label>
-        <input type="range" id="inputAttendance" min="40" max="100" value="75" oninput="document.getElementById('valAttendance').innerText = this.value + '%'">
-      </div>
-
-      <div class="form-group">
-        <label>Weekly Study Hours: <span id="valStudy">14 hrs</span></label>
-        <input type="range" id="inputStudy" min="1" max="40" value="14" oninput="document.getElementById('valStudy').innerText = this.value + ' hrs'">
-      </div>
-
-      <div class="form-group">
-        <label>Prior Semester GPA: <span id="valGPA">2.80</span></label>
-        <input type="range" id="inputGPA" min="1.0" max="4.0" step="0.1" value="2.8" oninput="document.getElementById('valGPA').innerText = parseFloat(this.value).toFixed(2)">
-      </div>
-
-      <div class="form-group">
-        <label>Assignment Completion: <span id="valAssignments">70%</span></label>
-        <input type="range" id="inputAssignments" min="30" max="100" value="70" oninput="document.getElementById('valAssignments').innerText = this.value + '%'">
-      </div>
-
-      <div class="form-group">
-        <label>Midterm Score: <span id="valMidterm">65%</span></label>
-        <input type="range" id="inputMidterm" min="30" max="100" value="65" oninput="document.getElementById('valMidterm').innerText = this.value + '%'">
-      </div>
-
-      <button class="btn-predict" onclick="runMLPrediction()">Run Prediction Model</button>
-
-      <div class="result-box" id="resultContainer">
-        <h3 id="resultTitle">System Ready</h3>
-        <p id="resultText" style="font-size: 0.85rem; color: var(--text-sub);">Adjust sliders above to evaluate student academic outcome risk.</p>
-        <p id="resultRecommendation" style="font-size: 0.82rem; margin-top: 8px; font-weight: 600; color: var(--accent-cyan);"></p>
-      </div>
-    </div>
-
-    <!-- Dashboards & Charts -->
-    <div class="dash-section">
-      <div class="charts-row">
-        <div class="chart-box">
-          <h3>ML Feature Importance Weights</h3>
-          <canvas id="featureChart"></canvas>
+  <div class="container">
+    <!-- Top Navigation Header -->
+    <header>
+      <div class="brand-wrap">
+        <div class="brand-icon">🎓</div>
+        <div class="brand-text">
+          <h1>Student Performance & Anomaly Engine</h1>
+          <p>
+            <span class="status-dot"></span>
+            <span>ML Classifier Active</span>
+            <span>•</span>
+            <span>Random Forest & Gradient Boosting (92.5% Test Accuracy)</span>
+          </p>
         </div>
-        <div class="chart-box">
-          <h3>Academic Risk Score Distribution</h3>
-          <canvas id="riskDistChart"></canvas>
+      </div>
+      <div class="nav-actions">
+        <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FEshanth1727%2Fstudent-performance-prediction" target="_blank" class="btn-action btn-vercel">
+          ▲ Deploy to Vercel
+        </a>
+        <a href="https://github.com/Eshanth1727/student-performance-prediction" target="_blank" class="btn-action btn-ghost">
+          🐙 GitHub Repo
+        </a>
+        <button class="btn-action btn-primary" onclick="openReportModal()">
+          📄 Export Report
+        </button>
+      </div>
+    </header>
+
+    <!-- Executive KPI Row -->
+    <div class="kpi-grid">
+      <div class="kpi-card" style="--kpi-color: var(--accent-emerald);">
+        <div class="kpi-header">
+          <span class="kpi-title">Model Accuracy</span>
+          <span class="kpi-icon">🎯</span>
+        </div>
+        <div class="kpi-value" id="kpiAccuracy">92.5%</div>
+        <div class="kpi-sub tag-emerald">
+          <span>✓ Exceeds 85% Benchmark (+7.5%)</span>
         </div>
       </div>
 
-      <div class="audit-log-card">
-        <h3>
-          <span>SQLite Real-Time Audit Log & Anomaly Stream</span>
-          <span class="db-badge">SQLite Log Table: student_audit.db</span>
-        </h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Timestamp</th>
-              <th>Student ID</th>
-              <th>Status</th>
-              <th>Risk Prob</th>
-              <th>Anomaly Detected</th>
-              <th>Prescriptive Recommendation</th>
-            </tr>
-          </thead>
-          <tbody id="auditTableBody"></tbody>
-        </table>
+      <div class="kpi-card" style="--kpi-color: var(--accent-cyan);">
+        <div class="kpi-header">
+          <span class="kpi-title">ROC-AUC Metric</span>
+          <span class="kpi-icon">📈</span>
+        </div>
+        <div class="kpi-value" id="kpiRocAuc">97.6%</div>
+        <div class="kpi-sub tag-cyan">
+          <span>High Predictive Discrimination</span>
+        </div>
+      </div>
+
+      <div class="kpi-card" style="--kpi-color: var(--accent);">
+        <div class="kpi-header">
+          <span class="kpi-title">Validated Dataset</span>
+          <span class="kpi-icon">👥</span>
+        </div>
+        <div class="kpi-value" id="kpiDatasetCount">1,000</div>
+        <div class="kpi-sub tag-purple">
+          <span>Multi-Dimensional Student Records</span>
+        </div>
+      </div>
+
+      <div class="kpi-card" style="--kpi-color: var(--accent-amber);">
+        <div class="kpi-header">
+          <span class="kpi-title">Audit Engine</span>
+          <span class="kpi-icon">🛡️</span>
+        </div>
+        <div class="kpi-value" style="font-size: 1.55rem; line-height: 1.5;">SQLite Backend</div>
+        <div class="kpi-sub tag-amber">
+          <span>Real-Time Anomaly Stream</span>
+        </div>
       </div>
     </div>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs-nav">
+      <button class="tab-btn active" onclick="switchTab('simulator')">
+        <span>🔮</span> Risk Simulator & What-If
+      </button>
+      <button class="tab-btn" onclick="switchTab('analytics')">
+        <span>📊</span> Model Analytics & ROC
+      </button>
+      <button class="tab-btn" onclick="switchTab('database')">
+        <span>🗄️</span> Student Database (1,000)
+      </button>
+      <button class="tab-btn" onclick="switchTab('audit')">
+        <span>⚡</span> SQLite Audit Stream
+      </button>
+    </div>
+
+    <!-- TAB 1: Risk Simulator -->
+    <div id="tab-simulator" class="tab-pane active">
+      <div class="sim-grid">
+        <!-- Input Form Card -->
+        <div class="card">
+          <div class="card-title">
+            <span>Student Risk Classifier</span>
+            <span style="font-size: 0.78rem; font-weight: 600; color: var(--accent-cyan); background: rgba(6, 182, 212, 0.1); padding: 3px 10px; border-radius: 12px;">Real-Time Inference</span>
+          </div>
+          <p class="card-subtitle">Adjust academic parameters to simulate outcome probabilities and trigger anomaly rules.</p>
+
+          <!-- Preset Persona Chips -->
+          <div class="persona-bar">
+            <span class="persona-label">Quick Test Presets (Mentor Demo)</span>
+            <div class="persona-chips">
+              <button class="chip active" onclick="loadPreset('honor')">🌟 Honor Scholar</button>
+              <button class="chip" onclick="loadPreset('burnout')">⚠️ Midterm Burnout</button>
+              <button class="chip" onclick="loadPreset('absent')">🚨 Chronic Absenteeism</button>
+              <button class="chip" onclick="loadPreset('gap')">📉 Concept Gap</button>
+            </div>
+          </div>
+
+          <!-- Feature Sliders -->
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-title">📅 Lecture Attendance Rate</span>
+              <span class="slider-badge" id="badgeAttendance">85.0%</span>
+            </div>
+            <input type="range" class="custom-range" id="inputAttendance" min="40" max="100" step="0.5" value="85" oninput="onSliderChange()">
+            <div class="range-limits"><span>40% (Severe Risk)</span><span>100% (Perfect)</span></div>
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-title">📚 Weekly Study Hours</span>
+              <span class="slider-badge" id="badgeStudy">18.0 hrs</span>
+            </div>
+            <input type="range" class="custom-range" id="inputStudy" min="1" max="40" step="0.5" value="18" oninput="onSliderChange()">
+            <div class="range-limits"><span>1 hr/wk</span><span>40 hrs/wk</span></div>
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-title">🎖️ Prior Semester GPA</span>
+              <span class="slider-badge" id="badgeGPA">3.20</span>
+            </div>
+            <input type="range" class="custom-range" id="inputGPA" min="1.0" max="4.0" step="0.05" value="3.2" oninput="onSliderChange()">
+            <div class="range-limits"><span>1.00</span><span>4.00 (Max)</span></div>
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-title">📝 Assignment Completion</span>
+              <span class="slider-badge" id="badgeAssignments">82.0%</span>
+            </div>
+            <input type="range" class="custom-range" id="inputAssignments" min="30" max="100" step="1" value="82" oninput="onSliderChange()">
+            <div class="range-limits"><span>30%</span><span>100%</span></div>
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-title">🎯 Midterm Exam Score</span>
+              <span class="slider-badge" id="badgeMidterm">78.0%</span>
+            </div>
+            <input type="range" class="custom-range" id="inputMidterm" min="30" max="100" step="1" value="78" oninput="onSliderChange()">
+            <div class="range-limits"><span>30% (Fail)</span><span>100%</span></div>
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-title">🌙 Daily Sleep Duration</span>
+              <span class="slider-badge" id="badgeSleep">7.0 hrs</span>
+            </div>
+            <input type="range" class="custom-range" id="inputSleep" min="3.5" max="10.0" step="0.2" value="7.0" oninput="onSliderChange()">
+            <div class="range-limits"><span>3.5 hrs (Sleep Deprivation)</span><span>10 hrs</span></div>
+          </div>
+
+          <button class="btn-run-pred" onclick="runMLPrediction(true)">
+            <span>⚡</span> Compute Machine Learning Prediction
+          </button>
+        </div>
+
+        <!-- Output Prediction Panel -->
+        <div class="result-card">
+          <!-- Hero Output -->
+          <div class="result-hero">
+            <!-- Radial Gauge -->
+            <div class="gauge-container">
+              <svg class="gauge-circle" viewBox="0 0 160 160">
+                <circle class="gauge-bg" cx="80" cy="80" r="70"></circle>
+                <circle class="gauge-meter" id="riskGauge" cx="80" cy="80" r="70"></circle>
+              </svg>
+              <div class="gauge-center">
+                <div class="gauge-val" id="riskValText">18.5%</div>
+                <div class="gauge-label">Risk Probability</div>
+              </div>
+            </div>
+
+            <!-- Outcome Text -->
+            <div class="outcome-details">
+              <span class="outcome-status-badge badge-safe" id="statusBadge">
+                <span>●</span> On-Track Student
+              </span>
+              <h3 id="outcomeTitle">Low Academic Risk Probability</h3>
+              <p class="outcome-desc" id="outcomeDescription">
+                Predictive indicators signify solid academic continuity. Study routine and attendance demonstrate consistent engagement.
+              </p>
+              <div class="diagnostic-tags" id="anomalyTagsContainer">
+                <span class="diag-tag success">✓ Balanced Study-Sleep Ratio</span>
+                <span class="diag-tag success">✓ Attendance Target Met</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Prescriptive Recommendations -->
+          <div class="intervention-box">
+            <div class="intervention-title">
+              <span>💡 Prescriptive Recommendation Plan</span>
+            </div>
+            <ul class="intervention-list" id="recommendationList">
+              <li class="intervention-item">
+                <span class="bullet">1</span>
+                <span>Maintain current study trajectory and participate in peer mentor circles.</span>
+              </li>
+              <li class="intervention-item">
+                <span class="bullet">2</span>
+                <span>Encourage participation in advanced concept workshops and honors seminars.</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Explainability Radar & Feature Impact -->
+          <div class="sim-charts-row">
+            <div class="chart-panel">
+              <h4>
+                <span>Multidimensional Student Radar</span>
+                <span style="color: var(--accent-cyan); font-size: 0.74rem;">vs Cohort Median</span>
+              </h4>
+              <div style="height: 220px; position: relative;">
+                <canvas id="studentRadarChart"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-panel">
+              <h4>
+                <span>Local Feature Contribution (SHAP Impact)</span>
+                <span style="color: var(--accent-emerald); font-size: 0.74rem;">Trained Weights</span>
+              </h4>
+              <div style="height: 220px; position: relative;">
+                <canvas id="localContributionChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Model Analytics -->
+    <div id="tab-analytics" class="tab-pane">
+      <div class="analytics-grid">
+        <!-- Global Feature Importances -->
+        <div class="analytics-box">
+          <h3>Random Forest Global Feature Importances</h3>
+          <p>Relative weight calculated from Gini impurity reduction across 100 ensemble decision trees.</p>
+          <div class="analytics-canvas-wrap">
+            <canvas id="featureChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Cohort Risk Distribution -->
+        <div class="analytics-box">
+          <h3>Cohort Outcome Distribution (N=1,000)</h3>
+          <p>Distribution of On-Track vs At-Risk outcomes in synthesized training and validation cohorts.</p>
+          <div class="analytics-canvas-wrap">
+            <canvas id="riskDistChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Interactive ROC Curve -->
+        <div class="analytics-box">
+          <h3>ROC-AUC Performance Curve (AUC = 0.976)</h3>
+          <p>True Positive Rate vs False Positive Rate across classification threshold variations.</p>
+          <div class="analytics-canvas-wrap">
+            <canvas id="rocCurveChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Confusion Matrix & Metrics -->
+        <div class="analytics-box">
+          <h3>Model Evaluation Confusion Matrix (Test Set N=200)</h3>
+          <p>Ensemble performance metrics with stratified 80/20 train-test validation split.</p>
+          <div class="cm-grid">
+            <div></div>
+            <div class="cm-header">Pred: Safe (0)</div>
+            <div class="cm-header">Pred: At-Risk (1)</div>
+
+            <div class="cm-header" style="writing-mode: vertical-rl; transform: rotate(180deg); margin: auto;">Actual Safe</div>
+            <div class="cm-cell tn">
+              <div class="cm-num">151</div>
+              <div class="cm-sub">True Negative (95.6%)</div>
+            </div>
+            <div class="cm-cell fp">
+              <div class="cm-num">7</div>
+              <div class="cm-sub">False Positive (4.4%)</div>
+            </div>
+
+            <div class="cm-header" style="writing-mode: vertical-rl; transform: rotate(180deg); margin: auto;">Actual Risk</div>
+            <div class="cm-cell fn">
+              <div class="cm-num">8</div>
+              <div class="cm-sub">False Negative (19.0%)</div>
+            </div>
+            <div class="cm-cell tp">
+              <div class="cm-num">34</div>
+              <div class="cm-sub">True Positive (81.0%)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Student Database Browser -->
+    <div id="tab-database" class="tab-pane">
+      <div class="card">
+        <div class="card-title">
+          <span>Student Database Browser (students_data.json & SQLite)</span>
+          <span class="slider-badge" id="recordCountBadge">1,000 Records Loaded</span>
+        </div>
+        <p class="card-subtitle">Search, filter, and inspect verified student profiles. Click "Load into Simulator" to test the ML model on any student.</p>
+
+        <div class="dataset-controls">
+          <div class="search-input-wrap">
+            <span>🔍</span>
+            <input type="text" id="dbSearchInput" placeholder="Search by Student ID (e.g. STU-1042)..." oninput="filterDataset()">
+          </div>
+
+          <div class="filter-pills">
+            <button class="filter-btn active" id="filterAll" onclick="setDbFilter('all')">All Records</button>
+            <button class="filter-btn" id="filterAtRisk" onclick="setDbFilter('risk')">At-Risk Only</button>
+            <button class="filter-btn" id="filterOnTrack" onclick="setDbFilter('safe')">On-Track Only</button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Attendance</th>
+                <th>Study Hrs/Wk</th>
+                <th>Prior GPA</th>
+                <th>Assignments</th>
+                <th>Midterm</th>
+                <th>Sleep</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="datasetTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination-bar">
+          <span id="pageInfoText">Showing 1-10 of 1,000 students</span>
+          <div class="pagination-btns">
+            <button class="page-nav-btn" id="btnPrevPage" onclick="changePage(-1)" disabled>← Previous</button>
+            <button class="page-nav-btn" id="btnNextPage" onclick="changePage(1)">Next →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: SQLite Audit Stream -->
+    <div id="tab-audit" class="tab-pane">
+      <div class="card">
+        <div class="card-title">
+          <span>SQLite Real-Time Anomaly Audit Stream</span>
+          <div class="audit-header-actions">
+            <button class="btn-action btn-ghost" onclick="exportAuditLogCSV()">📥 Export CSV</button>
+            <button class="btn-action btn-ghost" onclick="clearAuditLogs()">🗑️ Clear Log</button>
+          </div>
+        </div>
+        <p class="card-subtitle">All evaluated inference runs are logged with timestamped anomaly metadata matching `student_audit.db` schema.</p>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Student ID</th>
+                <th>Status</th>
+                <th>Risk Prob</th>
+                <th>Anomaly Detected</th>
+                <th>Prescriptive Recommendation</th>
+              </tr>
+            </thead>
+            <tbody id="auditTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Academic Diagnostic Report Modal -->
+    <div class="modal-overlay" id="reportModal" onclick="closeReportModalOnBackdrop(event)">
+      <div class="report-paper">
+        <button class="report-close" onclick="closeReportModal()">✕</button>
+        <div class="report-header">
+          <div class="report-title">
+            <h2>🎓 Academic Performance Diagnostic Report</h2>
+            <p>Generated by Student Risk Classifier & Anomaly Engine</p>
+          </div>
+          <button class="btn-action btn-primary" onclick="window.print()">🖨️ Print / Save PDF</button>
+        </div>
+
+        <div class="report-grid">
+          <div class="report-field">
+            <label>Student Identifier</label>
+            <value id="rptStudentId">STU-8821</value>
+          </div>
+          <div class="report-field">
+            <label>Evaluation Timestamp</label>
+            <value id="rptTimestamp">2026-10-11 15:30:00</value>
+          </div>
+          <div class="report-field">
+            <label>Assessed Risk Probability</label>
+            <value id="rptRiskProb">18.5% (Safe)</value>
+          </div>
+          <div class="report-field">
+            <label>Ensemble Model Accuracy</label>
+            <value>92.5% (Test Split)</value>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <h4 style="font-size: 0.9rem; margin-bottom: 8px; color: #fff;">Academic Feature Metric Snapshot:</h4>
+          <div class="report-grid" id="rptMetricsGrid">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <h4 style="font-size: 0.9rem; margin-bottom: 8px; color: #fff;">Detected Anomalies:</h4>
+          <div class="diagnostic-tags" id="rptAnomalies"></div>
+        </div>
+
+        <div>
+          <h4 style="font-size: 0.9rem; margin-bottom: 8px; color: #fff;">Prescribed Academic Intervention:</h4>
+          <div class="intervention-box" style="margin-top: 6px;">
+            <ul class="intervention-list" id="rptInterventions"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <div>
+        <strong>Student Performance Prediction & Anomaly Engine</strong> • Built by <a href="https://github.com/Eshanth1727" target="_blank">Eshanth Donikena</a>
+      </div>
+      <div>
+        <span>Python 3.11 • Scikit-Learn • Flask REST API • SQLite • Chart.js • Vercel Ready</span>
+      </div>
+    </footer>
   </div>
 
   <script src="app.js"></script>
